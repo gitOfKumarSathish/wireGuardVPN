@@ -12,11 +12,13 @@ const Charts = () => {
                 text: 'time',
             },
             categories: [], // No data
+            gridLineWidth: 0, // Remove x-axis lines
         },
         yAxis: {
             title: {
                 text: 'Mbps',
             },
+            gridLineWidth: 0,
         },
         series: [
             {
