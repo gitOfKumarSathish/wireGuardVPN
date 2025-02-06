@@ -3,18 +3,10 @@ import FlightIcon from '@mui/icons-material/Flight';
 import MediationIcon from '@mui/icons-material/Mediation';
 import MultipleStopIcon from '@mui/icons-material/MultipleStop';
 import PersonPinCircleIcon from '@mui/icons-material/PersonPinCircle';
-import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
+import { Card, CardContent, Divider, Typography } from '@mui/material';
 
 import Charts from './Charts';
 
-const bull = (
-    <Box
-        component="span"
-        sx={{ display: 'inline-block', mx: '2px', transform: 'scale(0.8)' }}
-    >
-        •
-    </Box>
-);
 const Dashboard = () => {
     return (
         <main>
