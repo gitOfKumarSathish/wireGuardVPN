@@ -15,6 +15,7 @@ function App() {
     <Router>
       <NavigationDrawer />
       <Routes>
+        <Route path="/" element={<Dashboard />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/peers" element={<Peers />} />
         <Route path="/peers/:publicKey" element={<PeerDetails />} />

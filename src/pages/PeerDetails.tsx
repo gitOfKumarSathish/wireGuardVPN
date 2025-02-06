@@ -3,15 +3,15 @@ import { useParams } from 'react-router-dom';
 
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import DataUsageIcon from '@mui/icons-material/DataUsage';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import FlightIcon from '@mui/icons-material/Flight';
 import HomeIcon from '@mui/icons-material/Home';
-import LineStyleOutlinedIcon from '@mui/icons-material/LineStyleOutlined';
 import MultipleStopIcon from '@mui/icons-material/MultipleStop';
-import QrCode2OutlinedIcon from '@mui/icons-material/QrCode2Outlined';
+import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
+import TuneIcon from '@mui/icons-material/Tune';
 import { Card, CardContent, Divider, IconButton, Tooltip, Typography } from '@mui/material';
 
 import Charts from './Charts';
@@ -40,19 +40,19 @@ const PeerDetails = () => {
                 </div>
                 <div className='flex items-center gap-4'>
                     <Tooltip title="QR Code" arrow placement='top'>
-                        <QrCode2OutlinedIcon fontSize='small' />
+                        <QrCodeScannerIcon />
                     </Tooltip>
                     <Tooltip title="Share" arrow placement='top'>
-                        <ShareOutlinedIcon fontSize='small' />
+                        <ShareOutlinedIcon />
                     </Tooltip>
                     <Tooltip title="Download" arrow placement='top'>
-                        <FileDownloadOutlinedIcon fontSize='small' />
+                        <FileDownloadOutlinedIcon />
                     </Tooltip>
                     <Tooltip title="Peer-Configuration" arrow placement='top'>
-                        <LineStyleOutlinedIcon fontSize='small' />
+                        <TuneIcon />
                     </Tooltip>
                     <Tooltip title="Delete" arrow placement='top'>
-                        <DeleteForeverIcon fontSize='small' />
+                        <DeleteOutlineIcon />
                     </Tooltip>
 
                     {/* Pulsing dot effect */}
