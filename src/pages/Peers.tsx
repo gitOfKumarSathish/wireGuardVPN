@@ -1,203 +1,112 @@
-import DataUsageIcon from '@mui/icons-material/DataUsage';
-import FlightIcon from '@mui/icons-material/Flight';
-import LanguageIcon from '@mui/icons-material/Language';
-import MediationIcon from '@mui/icons-material/Mediation';
-import MultipleStopIcon from '@mui/icons-material/MultipleStop';
-import PersonPinCircleIcon from '@mui/icons-material/PersonPinCircle';
-import TravelExploreIcon from '@mui/icons-material/TravelExplore';
-import { Card, CardContent, Divider, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
-import Charts from './Charts';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import NorthOutlinedIcon from '@mui/icons-material/NorthOutlined';
+import SearchIcon from '@mui/icons-material/Search';
+import SouthOutlinedIcon from '@mui/icons-material/SouthOutlined';
+import { Button, InputAdornment, Stack, TextField, Tooltip } from '@mui/material';
+import Card from '@mui/material/Card';
+import CardActionArea from '@mui/material/CardActionArea'; // Import CardActionArea
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
 
 const Peers = () => {
+    const navigate = useNavigate(); // Initialize navigation
+
+    const handleCardClick = (publicKey: string) => {
+        navigate(`/peers/${publicKey}`); // Navigate to the dynamic route
+    };
+
     return (
-        <main>
-            <header className='header'>
+        <div className='w-full'>
+            <div className='flex justify-between items-center p-4 bg-white rounded-lg shadow-md'>
+                <h1 className='text-2xl font-medium'>Peers</h1>
+                {/* Buttons */}
+                <Stack direction="row" spacing={2}>
+                    <Button variant="contained" startIcon={<AddOutlinedIcon fontSize='small' />}>
+                        Peer
+                    </Button>
+                    <Button variant="outlined" startIcon={<DownloadOutlinedIcon fontSize='medium' />}>
+                        Download All
+                    </Button>
+                    {/* Search Box */}
+                    <TextField
+                        variant="outlined"
+                        placeholder="Search Peers..."
+                        size="small"
+                        sx={{ width: 300 }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                </Stack>
+            </div>
 
-                <PersonPinCircleIcon className="resizer" />
-                <div>
-                    <Typography variant="h6" component="div">
-                        Welcome!
-                    </Typography>
-                    <Typography variant="h4" component="div">
-                        Username
-                    </Typography>
-                </div>
-
-            </header>
-            <Divider className='divider' />
-            <section>
-                <div className="cards topMenu">
-                    <Card sx={{ minWidth: '49%' }}>
-                        <CardContent>
-                            <div className='card-content'>
-                                <div>
-                                    <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
-                                        Address
-                                    </Typography>
-                                    <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>10.0.0.1/24</Typography>
-                                </div>
-                                <Typography variant="h5" component="div">
-                                    <TravelExploreIcon className="resizer" />
-                                </Typography>
+            {/* Clickable Card with CardActionArea */}
+            <Card sx={{ maxWidth: 400 }} className="mt-10 shadow-md">
+                <CardActionArea onClick={() => handleCardClick("htnPHOOOOOOksbcksabcjnacjanchabsgcastfchjcbcnacb")}>
+                    <CardContent>
+                        <div className='flex justify-between items-center'>
+                            <div className="relative flex items-center">
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75"></span>
+                                <Tooltip title="Status" arrow placement='top'>
+                                    <FiberManualRecordIcon fontSize="small" className="text-green-500 relative" />
+                                </Tooltip>
                             </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card sx={{ minWidth: '49%' }}>
-                        <CardContent>
-                            <div className='card-content'>
-                                <div>
-                                    <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
-                                        Listen Port
-                                    </Typography>
-                                    <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>51820
-                                    </Typography>
+                            <div className='flex gap-4'>
+                                <div className='flex items-center'>
+                                    <NorthOutlinedIcon fontSize='small' />
+                                    <Typography variant="body1">0.00000 GB</Typography>
                                 </div>
-                                <Typography variant="h5" component="div">
-                                    <LanguageIcon className='rotates resizer' />
-                                </Typography>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-                <div className="cards topMenu">
-                    <Card sx={{ minWidth: '24%' }}>
-                        <CardContent>
-                            <div className='card-content'>
-                                <div>
-                                    <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
-                                        Connected Peers
-                                    </Typography>
-                                    <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0 / 1</Typography>
+                                <div className='flex items-center'>
+                                    <SouthOutlinedIcon fontSize='small' />
+                                    <Typography variant="body1">0.00000 GB</Typography>
                                 </div>
-                                <Typography variant="h5" component="div">
-                                    <MediationIcon className="resizer" />
-                                </Typography>
+                                <Typography variant="body1">N/A Ago</Typography>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
 
-                    <Card sx={{ minWidth: '24%' }}>
-                        <CardContent>
-                            <div className='card-content'>
-                                <div>
-                                    <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
-                                        Total Usage
-                                    </Typography>
-                                    <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0.0000 GB
-                                    </Typography>
-                                </div>
-                                <Typography variant="h5" component="div">
-                                    <MultipleStopIcon className='rotates resizer' />
-                                </Typography>
-                            </div>
-                        </CardContent>
-                    </Card>
+                        <div className='mt-4'>
+                            <Typography variant="h5">hari's Avita</Typography>
+                        </div>
 
-                    <Card sx={{ minWidth: '24%' }}>
-                        <CardContent>
-                            <div className='card-content'>
-                                <div>
-                                    <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
-                                        Total Received
-                                    </Typography>
-                                    <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0.0000 GB
-                                    </Typography>
-                                </div>
-                                <Typography variant="h5" component="div">
-                                    <FlightIcon className="resizer manualUp" />
-                                </Typography>
-                            </div>
-                        </CardContent>
-                    </Card>
+                        <div className='mt-4'>
+                            <Typography variant="body1">Public Key</Typography>
+                            <Typography
+                                variant="body2"
+                                sx={{
+                                    color: 'text.secondary',
+                                    whiteSpace: 'normal',
+                                    wordBreak: 'break-word'
+                                }}
+                            >
+                                htnPHOOOOOOksbcksabcjnacjanchabsgcastfchjcbcnacb
+                            </Typography>
+                        </div>
 
-                    <Card sx={{ minWidth: '24%' }}>
-                        <CardContent>
-                            <div className='card-content'>
-                                <div>
-                                    <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
-                                        Total Sent
-                                    </Typography>
-                                    <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0.0000 GB
-                                    </Typography>
-                                </div>
-                                <Typography variant="h5" component="div">
-                                    <FlightIcon className="resizer manualDown" />
-                                </Typography>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-                <Divider className='divider' />
-                <div className="cards topMenu">
-                    <Card sx={{ minWidth: '49.5%', minHeight: '400px', borderRadius: '10px' }}>
-                        <CardContent>
-                            <div>
-                                <div className='card-content'>
-                                    <div>
-                                        <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
-                                            Peers Data Usage
-                                        </Typography>
-                                        {/* <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0 / 1</Typography> */}
-                                    </div>
-                                    <Typography variant="h5" component="div">
-                                        <DataUsageIcon className="resizer" />
-                                    </Typography>
-                                </div>
-
-                                {/* <Typography variant="h4" component="div" className='comingSoon'>Coming Soon...</Typography> */}
-                                <Charts />
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card sx={{ minWidth: '24%', minHeight: '400px', borderRadius: '10px' }}>
-                        <CardContent>
-                            <div>
-                                <div className='card-content'>
-                                    <div>
-                                        <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
-                                            Real Time Received Data Usage
-
-                                        </Typography>
-                                        {/* <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0.0000 GB
-                                        </Typography> */}
-                                    </div>
-                                    <Typography variant="h5" component="div">
-                                        <FlightIcon className="resizer manualUp" />
-                                    </Typography>
-                                </div>
-                                {/* <Typography variant="h4" component="div" className='comingSoon'>Coming Soon...</Typography> */}
-                                <Charts />
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card sx={{ minWidth: '24%', minHeight: '400px', borderRadius: '10px' }}>
-                        <CardContent>
-                            <div>
-                                <div className='card-content'>
-                                    <div>
-                                        <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
-                                            Real Time Sent Data Usage
-                                        </Typography>
-                                        {/* <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0.0000 GB
-                                        </Typography> */}
-                                    </div>
-                                    <Typography variant="h5" component="div">
-                                        <FlightIcon className="resizer manualDown" />
-                                    </Typography>
-                                </div>
-                                {/* <Typography variant="h4" component="div" className='comingSoon'>Coming Soon...</Typography> */}
-                                <Charts />
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-            </section>
-        </main>
-
+                        <div className='mt-2'>
+                            <Typography variant="body1">Allowed IP</Typography>
+                            <Typography
+                                variant="body2"
+                                sx={{
+                                    color: 'text.secondary',
+                                    whiteSpace: 'normal',
+                                    wordBreak: 'break-word'
+                                }}
+                            >
+                                10.0.0.1/32
+                            </Typography>
+                        </div>
+                    </CardContent>
+                </CardActionArea>
+            </Card>
+        </div>
     );
 };
 
