@@ -1,0 +1,63 @@
+body {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding: 1%;
+    background: #efefef;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+}
+
+.topMenu,
+.cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    /* margin-top: 20px; */
+    margin: 10px auto;
+
+}
+
+.rotates {
+    transform: rotate(90deg);
+}
+
+.resizer {
+    font-size: 56px !important;
+    color: green;
+}
+
+.card-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    max-height: 100%;
+}
+
+.manualDown {
+    transform: rotate(45deg);
+}
+
+.manualUp {
+    transform: rotate(135deg);
+}
+
+.MuiCardContent-root {
+    padding: 16px !important;
+}
+
+.comingSoon {
+    color: green;
+    display: flex;
+    align-items: center;
+    justify-self: center;
+    height: calc(100vh - 50vh);
+}
+
+.divider {
+    margin: 20px 0 !important;
+}
