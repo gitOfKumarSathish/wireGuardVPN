@@ -9,13 +9,13 @@ const Charts = () => {
         },
         xAxis: {
             title: {
-                text: 'Year',
+                text: 'time',
             },
             categories: [], // No data
         },
         yAxis: {
             title: {
-                text: 'Value',
+                text: 'Mbps',
             },
         },
         series: [
@@ -25,6 +25,9 @@ const Charts = () => {
                 data: [40, 50, 20, 10, 10, 20, 30, 40], // No data
             },
         ],
+        credits: {
+            enabled: false,
+        }
     };
 
     return <HighchartsReact highcharts={Highcharts} options={options} />;
