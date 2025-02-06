@@ -5,7 +5,7 @@ import MultipleStopIcon from '@mui/icons-material/MultipleStop';
 import PersonPinCircleIcon from '@mui/icons-material/PersonPinCircle';
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
 
-
+import Charts from './Charts';
 
 const bull = (
     <Box
@@ -111,14 +111,15 @@ const Dashboard = () => {
                                         <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
                                             Peers Data Usage
                                         </Typography>
-                                        <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0 / 1</Typography>
+                                        {/* <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0 / 1</Typography> */}
                                     </div>
                                     <Typography variant="h5" component="div">
                                         <DataUsageIcon className="resizer" />
                                     </Typography>
                                 </div>
 
-                                <Typography variant="h4" component="div" className='comingSoon'>Coming Soon...</Typography>
+                                {/* <Typography variant="h4" component="div" className='comingSoon'>Coming Soon...</Typography> */}
+                                <Charts />
                             </div>
                         </CardContent>
                     </Card>
@@ -132,14 +133,15 @@ const Dashboard = () => {
                                             Real Time Received Data Usage
 
                                         </Typography>
-                                        <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0.0000 GB
-                                        </Typography>
+                                        {/* <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0.0000 GB
+                                        </Typography> */}
                                     </div>
                                     <Typography variant="h5" component="div">
-                                        <MultipleStopIcon className='rotates resizer' />
+                                        <FlightIcon className="resizer manualUp" />
                                     </Typography>
                                 </div>
-                                <Typography variant="h4" component="div" className='comingSoon'>Coming Soon...</Typography>
+                                {/* <Typography variant="h4" component="div" className='comingSoon'>Coming Soon...</Typography> */}
+                                <Charts />
                             </div>
                         </CardContent>
                     </Card>
@@ -152,15 +154,15 @@ const Dashboard = () => {
                                         <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
                                             Real Time Sent Data Usage
                                         </Typography>
-                                        <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0.0000 GB
-                                        </Typography>
+                                        {/* <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0.0000 GB
+                                        </Typography> */}
                                     </div>
                                     <Typography variant="h5" component="div">
-                                        <FlightIcon className="resizer manualUp" />
+                                        <FlightIcon className="resizer manualDown" />
                                     </Typography>
                                 </div>
-                                <Typography variant="h4" component="div" className='comingSoon'>Coming Soon...</Typography>
-
+                                {/* <Typography variant="h4" component="div" className='comingSoon'>Coming Soon...</Typography> */}
+                                <Charts />
                             </div>
                         </CardContent>
                     </Card>

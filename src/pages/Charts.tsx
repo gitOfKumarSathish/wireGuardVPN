@@ -1,38 +1,33 @@
-import { AgCharts } from 'ag-charts-community';
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
 
 const Charts = () => {
     const options = {
-        autoSize: true,
-        data: [], // No data
         title: {
-            text: 'Line Chart Example',
+            text: '',
+
+        },
+        xAxis: {
+            title: {
+                text: 'Year',
+            },
+            categories: [], // No data
+        },
+        yAxis: {
+            title: {
+                text: 'Value',
+            },
         },
         series: [
             {
-                type: 'line',
-                xKey: 'year',
-                yKey: 'value',
-            },
-        ],
-        axes: [
-            {
-                type: 'category',
-                position: 'bottom',
-                title: {
-                    text: 'Year',
-                },
-            },
-            {
-                type: 'number',
-                position: 'left',
-                title: {
-                    text: 'Value',
-                },
+                type: 'spline', // Changed to 'spline' for a curved line
+                name: 'Value',
+                data: [40, 50, 20, 10, 10, 20, 30, 40], // No data
             },
         ],
     };
 
-    return <AgCharts options={options} />;
+    return <HighchartsReact highcharts={Highcharts} options={options} />;
 };
 
 export default Charts;
