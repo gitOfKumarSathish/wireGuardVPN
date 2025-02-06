@@ -65,10 +65,10 @@ const PeerDetails = () => {
         }
     };
 
-    const QRContent = (<>
+    const QRContent = (<div className='flex flex-col items-center justify-center h-full'>
         <h1>QR Code Content</h1>
-        <img src="https://placehold.co/600x100" alt="QR Code" />
-    </>);
+        <img src="https://placehold.co/600x400" alt="QR Code" />
+    </div>);
 
     return (
         <div className="w-full h-screen">
@@ -242,7 +242,6 @@ const PeerDetails = () => {
             </section>
             <AnimatedModal ref={ref} animation={ModalAnimation.Unfold}
                 closeOnBackgroundClick={true}
-                modalStyle={{ width: '50%', height: '50%', zIndex: 999, position: 'relative' }}
                 backgroundStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
             >
                 <div>
