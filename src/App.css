@@ -63,3 +63,7 @@ body {
 .divider {
     margin: 20px 0 !important;
 }
+
+#animated-modal-container #animated-modal-background {
+    opacity: 1 !important;
+}

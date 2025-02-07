@@ -1,25 +1,58 @@
 import React, { useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
+import { AnimatedModal, AnimatedModalObject, ModalAnimation } from '@dorbus/react-animated-modal'; // Import AnimatedModal
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import DataUsageIcon from '@mui/icons-material/DataUsage';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import FlightIcon from '@mui/icons-material/Flight';
 import HomeIcon from '@mui/icons-material/Home';
-import LineStyleOutlinedIcon from '@mui/icons-material/LineStyleOutlined';
 import MultipleStopIcon from '@mui/icons-material/MultipleStop';
-import QrCode2OutlinedIcon from '@mui/icons-material/QrCode2Outlined';
+import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
+import TuneIcon from '@mui/icons-material/Tune';
 import { Card, CardContent, Divider, IconButton, Tooltip, Typography } from '@mui/material';
 
 import Charts from './Charts';
 
 const PeerDetails = () => {
+    const ref = useRef<AnimatedModalObject>(null);
+
     const { publicKey } = useParams(); // Get the public key from the URL
     const [copied, setCopied] = useState(false);
     const ipAddressRef = useRef<HTMLSpanElement>(null); // Reference to the IP text
+    const [modalContent, setModalContent] = useState(''); // State to control modal content
+
+    const deleteModal = (content: string) => {
+        setModalContent(content);
+        ref.current?.OpenModal(ModalAnimation.Unfold);
+    };
+
+    const QRModal = (content: any) => {
+        setModalContent(content);
+        ref.current?.OpenModal(ModalAnimation.Unfold);
+    };
+
+    const shareModal = (content: string) => {
+        setModalContent(content);
+        ref.current?.OpenModal(ModalAnimation.Unfold);
+    };
+
+    const downloadModal = (content: string) => {
+        setModalContent(content);
+        ref.current?.OpenModal(ModalAnimation.Unfold);
+    };
+
+    const configModal = (content: string) => {
+        setModalContent(content);
+        ref.current?.OpenModal(ModalAnimation.Unfold);
+    };
+
+    const handleCloseModal = () => {
+        ref.current?.CloseModal();
+    };
 
     // Function to copy only the text
     const handleCopy = () => {
@@ -32,6 +65,11 @@ const PeerDetails = () => {
         }
     };
 
+    const QRContent = (<div className='flex flex-col items-center justify-center h-full'>
+        <h1>QR Code Content</h1>
+        <img src="https://placehold.co/600x400" alt="QR Code" />
+    </div>);
+
     return (
         <div className="w-full h-screen">
             <div className='flex justify-between items-center p-4 bg-white rounded-lg shadow-md'>
@@ -40,19 +78,19 @@ const PeerDetails = () => {
                 </div>
                 <div className='flex items-center gap-4'>
                     <Tooltip title="QR Code" arrow placement='top'>
-                        <QrCode2OutlinedIcon fontSize='small' />
+                        <QrCodeScannerIcon onClick={() => QRModal(QRContent)} />
                     </Tooltip>
                     <Tooltip title="Share" arrow placement='top'>
-                        <ShareOutlinedIcon fontSize='small' />
+                        <ShareOutlinedIcon onClick={() => shareModal('Share Content')} />
                     </Tooltip>
                     <Tooltip title="Download" arrow placement='top'>
-                        <FileDownloadOutlinedIcon fontSize='small' />
+                        <FileDownloadOutlinedIcon onClick={() => downloadModal('Download Content')} />
                     </Tooltip>
                     <Tooltip title="Peer-Configuration" arrow placement='top'>
-                        <LineStyleOutlinedIcon fontSize='small' />
+                        <TuneIcon onClick={() => configModal('Peer-Configuration Content')} />
                     </Tooltip>
                     <Tooltip title="Delete" arrow placement='top'>
-                        <DeleteForeverIcon fontSize='small' />
+                        <DeleteOutlineIcon onClick={() => deleteModal('Delete Content')} />
                     </Tooltip>
 
                     {/* Pulsing dot effect */}
@@ -155,14 +193,11 @@ const PeerDetails = () => {
                                         <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
                                             Peers Data Usage
                                         </Typography>
-                                        {/* <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0 / 1</Typography> */}
                                     </div>
                                     <Typography variant="h5" component="div">
                                         <DataUsageIcon className="resizer" />
                                     </Typography>
                                 </div>
-
-                                {/* <Typography variant="h4" component="div" className='comingSoon'>Coming Soon...</Typography> */}
                                 <Charts />
                             </div>
                         </CardContent>
@@ -175,16 +210,12 @@ const PeerDetails = () => {
                                     <div>
                                         <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
                                             Real Time Received Data Usage
-
                                         </Typography>
-                                        {/* <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0.0000 GB
-                                        </Typography> */}
                                     </div>
                                     <Typography variant="h5" component="div">
                                         <FlightIcon className="resizer manualUp" />
                                     </Typography>
                                 </div>
-                                {/* <Typography variant="h4" component="div" className='comingSoon'>Coming Soon...</Typography> */}
                                 <Charts />
                             </div>
                         </CardContent>
@@ -198,20 +229,26 @@ const PeerDetails = () => {
                                         <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
                                             Real Time Sent Data Usage
                                         </Typography>
-                                        {/* <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0.0000 GB
-                                        </Typography> */}
                                     </div>
                                     <Typography variant="h5" component="div">
                                         <FlightIcon className="resizer manualDown" />
                                     </Typography>
                                 </div>
-                                {/* <Typography variant="h4" component="div" className='comingSoon'>Coming Soon...</Typography> */}
                                 <Charts />
                             </div>
                         </CardContent>
                     </Card>
                 </div>
             </section>
+            <AnimatedModal ref={ref} animation={ModalAnimation.Unfold}
+                closeOnBackgroundClick={true}
+                backgroundStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+            >
+                <div>
+                    <h2>{modalContent}</h2>
+                    <button onClick={handleCloseModal}>Close</button>
+                </div>
+            </AnimatedModal>
         </div>
     );
 };
