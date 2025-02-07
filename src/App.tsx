@@ -2,6 +2,7 @@ import './App.css';
 
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
+import Home from './auth/Home';
 import NavigationDrawer from './components/NavigationDrawer';
 import Dashboard from './pages/Dashboard';
 import Help from './pages/Help';
@@ -15,7 +16,7 @@ function App() {
     <Router>
       <NavigationDrawer />
       <Routes>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={<Home />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/peers" element={<Peers />} />
         <Route path="/peers/:publicKey" element={<PeerDetails />} />
