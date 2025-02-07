@@ -10,6 +10,7 @@ import NotFound from './pages/NotFound';
 import PeerDetails from './pages/PeerDetails';
 import Peers from './pages/Peers';
 import Settings from './pages/Settings';
+import LoginForm from './auth/Login';
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
       <NavigationDrawer />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/login" element={<LoginForm />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/peers" element={<Peers />} />
         <Route path="/peers/:publicKey" element={<PeerDetails />} />

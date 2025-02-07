@@ -19,7 +19,7 @@ const Home = () => {
                     you to access content safely from anywhere in the world.
                 </p>
                 <Stack spacing={2} direction="row">
-                    <Button variant="contained" onClick={() => navigate("/get-started")}>
+                    <Button variant="contained" onClick={() => navigate("/login")}>
                         Get Started
                     </Button>
                     <Button variant="outlined" onClick={() => navigate("/dashboard")}>
