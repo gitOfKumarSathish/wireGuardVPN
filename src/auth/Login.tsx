@@ -1,4 +1,4 @@
-import React, { use, useState } from "react";
+import React, { useState } from "react";
 import { TextField, Button, Container, Typography, Box } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { base_path } from "../api/api";
@@ -47,6 +47,7 @@ const LoginForm: React.FC = () => {
 
         onSuccess: (data) => {
             console.log("Login success:", data);
+            document.cookie = `authToken=${data.access_token}; path=/;`;
             setIsLoading(false);
             enqueueSnackbar({ message: "Succesfully LoggedIn", variant: "success", autoHideDuration: 2000, });
             navigate("/dashboard");

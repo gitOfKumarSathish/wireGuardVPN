@@ -16,15 +16,17 @@ function App() {
 
   return (
     <Router>
-      <NavigationDrawer />
+      {/* <NavigationDrawer /> */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginForm />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/peers" element={<Peers />} />
-        <Route path="/peers/:publicKey" element={<PeerDetails />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/help" element={<Help />} />
+        <Route element={<NavigationDrawer />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/peers" element={<Peers />} />
+          <Route path="/peers/:id" element={<PeerDetails />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/help" element={<Help />} />
+        </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

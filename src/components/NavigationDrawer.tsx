@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 
 import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -70,14 +70,14 @@ export default function NavigationDrawer() {
 
     return (
         <div>
-
-
             <Button onClick={toggleDrawer(true)}>
                 <MenuIcon />
             </Button>
             <Drawer open={open} onClose={toggleDrawer(false)}>
                 {DrawerList}
             </Drawer>
+
+            <Outlet />
         </div>
     );
 }

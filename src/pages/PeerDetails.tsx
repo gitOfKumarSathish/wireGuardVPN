@@ -16,14 +16,20 @@ import TuneIcon from '@mui/icons-material/Tune';
 import { Card, CardContent, Divider, IconButton, Tooltip, Typography } from '@mui/material';
 
 import Charts from './Charts';
+import { useQuery } from '@tanstack/react-query';
+import { base_path } from '../api/api';
+
+
 
 const PeerDetails = () => {
     const ref = useRef<AnimatedModalObject>(null);
-
+    const { id } = useParams(); // Get the public key from the URL
     const { publicKey } = useParams(); // Get the public key from the URL
     const [copied, setCopied] = useState(false);
     const ipAddressRef = useRef<HTMLSpanElement>(null); // Reference to the IP text
     const [modalContent, setModalContent] = useState(''); // State to control modal content
+
+
 
     const deleteModal = (content: string) => {
         setModalContent(content);
@@ -70,11 +76,30 @@ const PeerDetails = () => {
         <img src="https://placehold.co/600x400" alt="QR Code" />
     </div>);
 
+
+    const { isLoading, isError, data, error } = useQuery({
+        queryKey: ['peers'],
+        queryFn: async () => {
+            const response = await fetch(`${base_path}/api/peers/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw (data.detail);
+            }
+            return response.json();
+        },
+    });
+    console.log(data);
+
     return (
         <div className="w-full h-screen">
             <div className='flex justify-between items-center p-4 bg-white rounded-lg shadow-md'>
                 <div>
-                    <h1 className='text-2xl font-medium'>hari's avita</h1>
+                    <h1 className='text-2xl font-medium'>{data.peer_name}</h1>
                 </div>
                 <div className='flex items-center gap-4'>
                     <Tooltip title="QR Code" arrow placement='top'>
@@ -122,7 +147,7 @@ const PeerDetails = () => {
                                         </Tooltip>
                                     </div>
                                     <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>
-                                        <span ref={ipAddressRef}>172.0.0.1</span>
+                                        <span ref={ipAddressRef}>{data.assigned_ip}</span>
                                     </Typography>
                                 </div>
                                 <Typography variant="h5" component="div">

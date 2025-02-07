@@ -1,1 +1,1 @@
-export const base_path = 'http://binary.local:8000';
+export const base_path = 'http://10.5.0.23:8000';
