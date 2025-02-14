@@ -1,1 +1,1 @@
-export const base_path = 'http://10.5.0.23:8000';
+export const base_path = 'http://192.168.1.16:8000';

@@ -33,7 +33,7 @@ export default function NavigationDrawer() {
                 <img src="https://placehold.co/400x200/000000/FFFFFF/png" alt="Logo" style={{ maxWidth: '100%', height: 'auto' }} />
             </Box>
             <List>
-                {['Dashboard', 'Peers', 'Settings', 'Help'].map((text, index) => {
+                {['Dashboard', 'Peers', 'Users', 'Settings', 'Help'].map((text, index) => {
                     const path = `/${text.toLowerCase()}`;
                     return (
                         <ListItem key={text} disablePadding>

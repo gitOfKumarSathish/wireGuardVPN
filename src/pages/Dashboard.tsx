@@ -3,22 +3,25 @@ import FlightIcon from '@mui/icons-material/Flight';
 import MediationIcon from '@mui/icons-material/Mediation';
 import MultipleStopIcon from '@mui/icons-material/MultipleStop';
 import PersonPinCircleIcon from '@mui/icons-material/PersonPinCircle';
-import { Card, CardContent, Divider, Skeleton, Typography } from '@mui/material';
+import { Card, CardContent, Divider, Typography } from '@mui/material';
 import Charts from './Charts';
 import { useQuery } from '@tanstack/react-query';
 import { base_path } from '../api/api';
 import { useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { userAtom } from '../jotai/userAtom';
+import { motion } from 'framer-motion';
+import { getAuthToken } from '../api/getAuthToken';
+
+const shimmerAnimation = {
+    initial: { opacity: 0.4 },
+    animate: { opacity: [0.4, 1, 0.4] },
+    transition: { duration: 1.5, repeat: Infinity }
+};
 
 const Dashboard = () => {
     const [user, setUser] = useAtom(userAtom);
 
-    const getAuthToken = () => {
-        const cookies = document.cookie.split('; ');
-        const authToken = cookies.find(row => row.startsWith('authToken='));
-        return authToken ? authToken.split('=')[1] : null;
-    };
 
 
     const { isLoading, data } = useQuery({
@@ -50,15 +53,12 @@ const Dashboard = () => {
         }
     }, [data]);
 
-
-    console.log(data);
-
     return (
         <main>
             {/* Header with Skeleton */}
             <header className='header'>
                 {isLoading ? (
-                    <Skeleton variant="circular" width={40} height={40} />
+                    <motion.div className="skeleton-circle" {...shimmerAnimation} />
                 ) : (
                     <PersonPinCircleIcon className="resizer" />
                 )}
@@ -69,10 +69,10 @@ const Dashboard = () => {
                     </Typography>
 
                     {isLoading ? (
-                        <Skeleton variant="text" width={200} height={40} />
+                        <motion.div className="skeleton-text" {...shimmerAnimation} />
                     ) : (
                         <Typography variant="h4" component="div">
-                            {data.username}
+                            {data?.username}
                         </Typography>
                     )}
                 </div>
@@ -93,7 +93,7 @@ const Dashboard = () => {
                                         </Typography>
 
                                         {isLoading ? (
-                                            <Skeleton variant="text" width={80} height={30} />
+                                            <motion.div className="skeleton-text" {...shimmerAnimation} />
                                         ) : (
                                             <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>
                                                 {data ? data[title.toLowerCase().replace(/\s/g, '_')] || "0.0000 GB" : "0.0000 GB"}
@@ -135,7 +135,7 @@ const Dashboard = () => {
                                     </div>
 
                                     {isLoading ? (
-                                        <Skeleton variant="rectangular" width="100%" height={300} />
+                                        <motion.div className="skeleton-rect" {...shimmerAnimation} />
                                     ) : (
                                         <Charts />
                                     )}

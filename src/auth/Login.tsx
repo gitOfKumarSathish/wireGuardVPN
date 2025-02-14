@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { base_path } from "../api/api";
 import { useSnackbar } from "notistack";
 import { useNavigate } from "react-router-dom";
+import { setCookie } from "typescript-cookie";
 
 const LoginForm: React.FC = () => {
     const [formData, setFormData] = useState({ username: "", password: "" });
@@ -47,7 +48,8 @@ const LoginForm: React.FC = () => {
 
         onSuccess: (data) => {
             console.log("Login success:", data);
-            document.cookie = `authToken=${data.access_token}; path=/;`;
+            // document.cookie = `authToken=${data.access_token}; path=/;`;
+            setCookie("authToken", data.access_token, { path: "/" });
             setIsLoading(false);
             enqueueSnackbar({ message: "Succesfully LoggedIn", variant: "success", autoHideDuration: 2000, });
             navigate("/dashboard");
