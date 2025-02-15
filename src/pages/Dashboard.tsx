@@ -22,14 +22,11 @@ const shimmerAnimation = {
 const Dashboard = () => {
     const [user, setUser] = useAtom(userAtom);
 
-
-
     const { isLoading, data } = useQuery({
         queryKey: ['user'],
         queryFn: async () => {
             const authToken = getAuthToken();
             if (!authToken) throw new Error("No auth token found");
-
             const response = await fetch(`${base_path}/api/users/me`, {
                 method: 'GET',
                 headers: {
@@ -45,6 +42,7 @@ const Dashboard = () => {
 
             return response.json();
         },
+
     });
 
     useEffect(() => {
