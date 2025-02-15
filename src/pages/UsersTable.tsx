@@ -2,16 +2,15 @@ import * as React from 'react';
 import { alpha } from '@mui/material/styles';
 import {
     Box, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination,
-    TableRow, TableSortLabel, Toolbar, Typography, Paper, Checkbox, IconButton,
-    Tooltip, Skeleton
+    TableRow, TableSortLabel, Toolbar, Typography, Paper, IconButton, Tooltip, Skeleton, Menu, MenuItem
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { visuallyHidden } from '@mui/utils';
 import { useQuery } from '@tanstack/react-query';
 import { base_path } from '../api/api';
-import { useAtom } from 'jotai';
-import { userAtom } from '../jotai/userAtom';
 import { getAuthToken } from '../api/getAuthToken';
 
 // Define user structure based on API response
@@ -48,19 +47,10 @@ const headCells = [
     { id: 'role', label: 'Role' },
     { id: 'peers', label: 'Peers' },
     { id: 'created_at', label: 'Created At' },
+    { id: 'actions', label: 'Actions' }, // Added Actions column
 ];
 
-interface EnhancedTableProps {
-    numSelected: number;
-    onRequestSort: (event: React.MouseEvent<unknown>, property: keyof User) => void;
-    onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    order: Order;
-    orderBy: string;
-    rowCount: number;
-}
-
-const EnhancedTableHead = (props: EnhancedTableProps) => {
-    const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+const EnhancedTableHead: React.FC<{ order: Order, orderBy: keyof User, onRequestSort: (event: React.MouseEvent<unknown>, property: keyof User) => void; }> = ({ order, orderBy, onRequestSort }) => {
     const createSortHandler = (property: keyof User) => (event: React.MouseEvent<unknown>) => {
         onRequestSort(event, property);
     };
@@ -68,28 +58,24 @@ const EnhancedTableHead = (props: EnhancedTableProps) => {
     return (
         <TableHead>
             <TableRow>
-                {/* <TableCell padding="checkbox">
-                    <Checkbox
-                        color="primary"
-                        indeterminate={numSelected > 0 && numSelected < rowCount}
-                        checked={rowCount > 0 && numSelected === rowCount}
-                        onChange={onSelectAllClick}
-                    />
-                </TableCell> */}
                 {headCells.map((headCell) => (
                     <TableCell key={headCell.id} align="left">
-                        <TableSortLabel
-                            active={orderBy === headCell.id}
-                            direction={orderBy === headCell.id ? order : 'asc'}
-                            onClick={createSortHandler(headCell.id as keyof User)}
-                        >
-                            {headCell.label}
-                            {orderBy === headCell.id ? (
-                                <Box component="span" sx={visuallyHidden}>
-                                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                                </Box>
-                            ) : null}
-                        </TableSortLabel>
+                        {headCell.id !== 'actions' ? (
+                            <TableSortLabel
+                                active={orderBy === headCell.id}
+                                direction={orderBy === headCell.id ? order : 'asc'}
+                                onClick={createSortHandler(headCell.id as keyof User)}
+                            >
+                                {headCell.label}
+                                {orderBy === headCell.id ? (
+                                    <Box component="span" sx={visuallyHidden}>
+                                        {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                                    </Box>
+                                ) : null}
+                            </TableSortLabel>
+                        ) : (
+                            headCell.label
+                        )}
                     </TableCell>
                 ))}
             </TableRow>
@@ -97,50 +83,16 @@ const EnhancedTableHead = (props: EnhancedTableProps) => {
     );
 };
 
-interface EnhancedTableToolbarProps {
-    numSelected: number;
-}
-
-const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
-    const { numSelected } = props;
-    return (
-        <Toolbar sx={{ pl: { sm: 2 }, pr: { xs: 1, sm: 1 } }}>
-            <Typography sx={{ flex: '1 1 100%' }} variant="h6">
-                Users
-            </Typography>
-            {numSelected > 0 ? (
-                <Tooltip title="Delete">
-                    <IconButton>
-                        <DeleteIcon />
-                    </IconButton>
-                </Tooltip>
-            ) : (
-                <Tooltip title="Filter list">
-                    <IconButton>
-                        <FilterListIcon />
-                    </IconButton>
-                </Tooltip>
-            )}
-        </Toolbar>
-    );
-};
-
 const EnhancedTable = () => {
     const [order, setOrder] = React.useState<Order>('asc');
     const [orderBy, setOrderBy] = React.useState<keyof User>('username');
-    const [selected, setSelected] = React.useState<readonly string[]>([]);
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [selectedUser, setSelectedUser] = React.useState<string | null>(null);
+    const [menuAnchor, setMenuAnchor] = React.useState<null | HTMLElement>(null);
 
-    // Fetch Authentication Token
-
-
-    // Fetch Users from API
     const { isLoading, data: users = [] } = useQuery<User[]>({
         queryKey: ['users'],
         queryFn: async () => {
             const authToken = getAuthToken();
-            console.log(authToken);
             if (!authToken) throw new Error("No auth token found");
 
             const response = await fetch(`${base_path}/api/users`, {
@@ -160,47 +112,50 @@ const EnhancedTable = () => {
         }
     });
 
-
-
-    // Sorting
+    // Sorting handler
     const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof User) => {
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
         setOrderBy(property);
     };
 
-    // Select/Deselect
-    const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.checked) {
-            setSelected(users.map((user) => user.id));
-            return;
-        }
-        setSelected([]);
+    // Handle Menu Click (Open)
+    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, userId: string) => {
+        setSelectedUser(userId);
+        setMenuAnchor(event.currentTarget);
     };
 
-    const handleClick = (event: React.MouseEvent<unknown>, id: string) => {
-        const selectedIndex = selected.indexOf(id);
-        let newSelected: readonly string[] = selectedIndex === -1 ? [...selected, id] : selected.filter((item) => item !== id);
-        setSelected(newSelected);
+    // Handle Menu Close
+    const handleMenuClose = () => {
+        setMenuAnchor(null);
+        setSelectedUser(null);
+    };
+
+    // Handle Edit Action
+    const handleEdit = () => {
+        alert(`Edit user: ${selectedUser}`);
+        handleMenuClose();
+    };
+
+    // Handle Delete Action
+    const handleDelete = () => {
+        alert(`Delete user: ${selectedUser}`);
+        handleMenuClose();
     };
 
     return (
         <Box sx={{ width: '100%' }}>
             <Paper sx={{ width: '100%', mb: 2 }}>
-                <EnhancedTableToolbar numSelected={selected.length} />
                 <TableContainer>
                     <Table sx={{ minWidth: 750 }}>
                         <EnhancedTableHead
-                            numSelected={selected.length}
                             order={order}
                             orderBy={orderBy}
-                            onSelectAllClick={handleSelectAllClick}
                             onRequestSort={handleRequestSort}
-                            rowCount={users.length}
                         />
                         <TableBody>
                             {isLoading ? (
-                                Array.from({ length: rowsPerPage }).map((_, index) => (
+                                Array.from({ length: 5 }).map((_, index) => (
                                     <TableRow key={index}>
                                         {headCells.map((_, cellIndex) => (
                                             <TableCell key={cellIndex}>
@@ -211,11 +166,16 @@ const EnhancedTable = () => {
                                 ))
                             ) : (
                                 users.map((user) => (
-                                    <TableRow key={user.id} hover onClick={(event) => handleClick(event, user.id)}>
+                                    <TableRow key={user.id} hover>
                                         <TableCell>{user.username}</TableCell>
                                         <TableCell>{user.role}</TableCell>
                                         <TableCell>{user.peers}</TableCell>
                                         <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                                        <TableCell>
+                                            <IconButton onClick={(event) => handleMenuOpen(event, user.id)}>
+                                                <MoreVertIcon />
+                                            </IconButton>
+                                        </TableCell>
                                     </TableRow>
                                 ))
                             )}
@@ -223,6 +183,20 @@ const EnhancedTable = () => {
                     </Table>
                 </TableContainer>
             </Paper>
+
+            {/* Kebab Menu */}
+            <Menu
+                anchorEl={menuAnchor}
+                open={Boolean(menuAnchor)}
+                onClose={handleMenuClose}
+            >
+                <MenuItem onClick={handleEdit}>
+                    <EditIcon sx={{ mr: 1 }} /> Edit
+                </MenuItem>
+                <MenuItem onClick={handleDelete}>
+                    <DeleteIcon sx={{ mr: 1 }} color="error" /> Delete
+                </MenuItem>
+            </Menu>
         </Box>
     );
 };

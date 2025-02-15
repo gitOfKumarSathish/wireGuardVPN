@@ -1,5 +1,5 @@
 import './App.css';
-import { BrowserRouter as Router, Route, Routes, useLocation, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import Home from './auth/Home';
@@ -13,7 +13,6 @@ import Settings from './pages/Settings';
 import LoginForm from './auth/Login';
 import { Users } from './pages/Users';
 
-// Animation Variants
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
@@ -26,33 +25,17 @@ const AnimatedPage = ({ children }: { children: React.ReactNode; }) => (
   </motion.div>
 );
 
-// Authentication Check Function
-const isAuthenticated = () => {
-  return localStorage.getItem('token') !== null; // Modify this with your auth logic
-};
-
-// Protected Route Component
-const ProtectedRoute = ({ children }: { children: React.ReactNode; }) => {
-  return isAuthenticated() ? children : <Navigate to="/login" replace />;
-};
-
-// Animated Routes Component
 const AnimatedRoutes = () => {
   const location = useLocation();
 
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        {/* Prevent access to login if already authenticated */}
-        <Route
-          path="/auth/login"
-          element={isAuthenticated() ? <Navigate to="/dashboard" replace /> : <AnimatedPage><LoginForm /></AnimatedPage>}
-        />
-
         <Route path="/" element={<AnimatedPage><Home /></AnimatedPage>} />
+        <Route path="/login" element={<AnimatedPage><LoginForm /></AnimatedPage>} />
 
-        {/* Protected Routes - Only accessible if authenticated */}
-        <Route element={<ProtectedRoute><NavigationDrawer /></ProtectedRoute>}>
+        {/* Wrap NavigationDrawer only around necessary routes */}
+        <Route element={<NavigationDrawer />}>
           <Route path="/dashboard" element={<AnimatedPage><Dashboard /></AnimatedPage>} />
           <Route path="/peers" element={<AnimatedPage><Peers /></AnimatedPage>} />
           <Route path="/peers/:id" element={<AnimatedPage><PeerDetails /></AnimatedPage>} />
@@ -61,7 +44,6 @@ const AnimatedRoutes = () => {
           <Route path="/help" element={<AnimatedPage><Help /></AnimatedPage>} />
         </Route>
 
-        {/* Catch-all 404 route */}
         <Route path="*" element={<AnimatedPage><NotFound /></AnimatedPage>} />
       </Routes>
     </AnimatePresence>

@@ -1,69 +1,135 @@
 import { useNavigate } from 'react-router-dom';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import NorthOutlinedIcon from '@mui/icons-material/NorthOutlined';
-import SearchIcon from '@mui/icons-material/Search';
-import SouthOutlinedIcon from '@mui/icons-material/SouthOutlined';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {
-    Avatar, Box, Button, InputAdornment, Skeleton, Stack, TextField, Tooltip, Card,
-    CardActionArea, CardContent, Typography
+    Box, Button, InputAdornment, Skeleton, Stack, TextField, Card,
+    CardActionArea, CardContent, Typography, FormControlLabel, Switch,
+    CircularProgress, IconButton, Menu, MenuItem
 } from '@mui/material';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { base_path } from '../api/api';
 import { AnimatedModal, AnimatedModalObject, ModalAnimation } from '@dorbus/react-animated-modal';
 import { useRef, useState } from 'react';
-import { useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { userAtom } from '../jotai/userAtom';
-
-
+import { getAuthToken } from '../api/getAuthToken';
+import { useSnackbar } from 'notistack';
 
 const Peers = () => {
-    const user = useAtomValue(userAtom);
+    const [user] = useAtom(userAtom);
     const ref = useRef<AnimatedModalObject>(null);
-    const [modalContent, setModalContent] = useState(''); // State to control modal content
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const { enqueueSnackbar } = useSnackbar();
+
+    // State variables
     const [deviceName, setDeviceName] = useState("");
     const [ipAddress, setIpAddress] = useState("");
+    const [isAutoIP, setIsAutoIP] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+    const [selectedPeer, setSelectedPeer] = useState<any>(null);
 
-    console.log(user);
-
-    const configModal = (content: string) => {
-        setModalContent(content);
-        ref.current?.OpenModal(ModalAnimation.Unfold);
+    // ✅ Open Modal - Reset fields before opening
+    const configModal = () => {
+        setDeviceName("");
+        setIpAddress("");
+        setIsAutoIP(false);
+        setIsModalOpen(true);
+        setTimeout(() => ref.current?.OpenModal(ModalAnimation.Unfold), 100);
     };
 
+    // ✅ Close Modal properly
     const handleCloseModal = () => {
-        ref.current?.CloseModal();
+        if (ref.current) {
+            ref.current.CloseModal();
+        }
+        setTimeout(() => {
+            setIsModalOpen(false);
+            setDeviceName("");
+            setIpAddress("");
+            setIsAutoIP(false);
+        }, 300); // Small delay to ensure modal animation
     };
 
-    //useQuery to Get Peers details
-    const { isLoading, isError, data, error } = useQuery({
-        queryKey: ['peers'],
+    // Fetch Peers List
+    const { isLoading, data: peers = [] } = useQuery({
+        queryKey: ["peers"],
         queryFn: async () => {
             const response = await fetch(`${base_path}/api/peers`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
             });
             if (!response.ok) {
-                const data = await response.json();
-                throw (data.detail);
+                const errorData = await response.json();
+                throw new Error(errorData.detail || "Failed to fetch peers.");
             }
             return response.json();
         },
     });
 
+    // Mutation to Add Peer
+    const mutation = useMutation({
+        mutationFn: async (formData: any) => {
+            const authToken = getAuthToken();
+            const response = await fetch(`${base_path}/api/peers/${user.id}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`,
+                },
+                body: JSON.stringify(formData),
+            });
 
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.detail || "Failed to add peer.");
+            }
+            return response.json();
+        },
+        onError: (error) => {
+            setIsSubmitting(false);
+            enqueueSnackbar(error.message, { variant: "error", autoHideDuration: 2000 });
+        },
+        onSuccess: async () => {
+            enqueueSnackbar("Peer Added Successfully!", { variant: "success", autoHideDuration: 2000 });
+
+            // ✅ Refresh peers before closing modal
+            await queryClient.invalidateQueries({ queryKey: ["peers"] });
+            setIsSubmitting(false);
+
+            // ✅ Close modal smoothly
+            handleCloseModal();
+        },
+    });
+
+    // Handle Form Submission
     const handleSubmit = () => {
-        console.log("Device Name:", deviceName);
-        console.log("IP Address:", ipAddress);
-        handleCloseModal(); // Close modal after submission
+        if (!deviceName.trim()) {
+            enqueueSnackbar("Device Name is required.", { variant: "warning", autoHideDuration: 2000 });
+            return;
+        }
+        setIsSubmitting(true);
+        mutation.mutate({
+            peer_name: deviceName,
+            ipAddress: isAutoIP ? "Auto Assigned" : ipAddress,
+        });
     };
-    if (isError) {
-        return <div>Error: {error.toString()}</div>;
-    }
+
+    // ✅ Handle Kebab Menu Click
+    const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>, peer: any) => {
+        event.stopPropagation(); // Prevents card click navigation
+        setMenuAnchor(event.currentTarget);
+        setSelectedPeer(peer);
+    };
+
+    // ✅ Handle Menu Close
+    const handleCloseMenu = () => {
+        setMenuAnchor(null);
+        setSelectedPeer(null);
+    };
 
     return (
         <div className='w-full'>
@@ -73,158 +139,114 @@ const Peers = () => {
 
                 {/* Buttons & Search */}
                 <Stack direction="row" spacing={2}>
-                    <Button onClick={() => configModal('Peer-Configuration Content')} variant="contained" startIcon={<AddOutlinedIcon fontSize='small' />}>
+                    <Button onClick={configModal} variant="contained" startIcon={<AddOutlinedIcon fontSize='small' />}>
                         Peer
                     </Button>
                     <Button variant="outlined" startIcon={<DownloadOutlinedIcon fontSize='medium' />}>
                         Download All
                     </Button>
-
-                    {/* Search Box */}
-                    <TextField
-                        variant="outlined"
-                        placeholder="Search Peers..."
-                        size="small"
-                        sx={{ width: 300 }}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <SearchIcon />
-                                </InputAdornment>
-                            ),
-                        }}
-                    />
                 </Stack>
             </div>
 
-            {/* Skeleton Loading for Peers */}
-            {isLoading ? (
-                // Display skeletons when loading
-                <Stack spacing={2} className="mt-10">
-                    {[1, 2, 3, 4].map((index) => (
-                        <Card key={index} sx={{ maxWidth: 400 }} className="shadow-md">
-                            <CardActionArea>
+            {/* Peers List */}
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4'>
+                {isLoading ? (
+                    <Stack spacing={2} className="mt-10">
+                        {[1, 2, 3, 4].map((index) => (
+                            <Card key={index} sx={{ maxWidth: 400 }} className="shadow-md">
                                 <CardContent>
-                                    {/* Status Icon Skeleton */}
-                                    <Skeleton variant="circular" width={24} height={24} />
-
-                                    {/* Peer Name Skeleton */}
                                     <Skeleton variant="text" width="80%" height={30} />
-
-                                    {/* Public Key Skeleton */}
                                     <Skeleton variant="text" width="90%" height={20} />
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </Stack>
+                ) : (
+                    peers.length > 0 && peers.map((peer: any) => (
+                        <Card key={peer.id} sx={{ maxWidth: 400 }} className="mt-10 shadow-md">
+                            <CardActionArea onClick={() => navigate(`/peers/${peer.id}`)}>
+                                <CardContent>
+                                    <div className="flex justify-between items-center">
+                                        <Typography variant="h5">{peer.peer_name}</Typography>
 
-                                    {/* Allowed IP Skeleton */}
-                                    <Skeleton variant="text" width="60%" height={20} />
+                                        {/* Kebab Menu Button */}
+                                        <IconButton onClick={(event) => handleMenuClick(event, peer)} aria-label="settings">
+                                            <MoreVertIcon />
+                                        </IconButton>
 
-                                    {/* Traffic Stats Skeleton */}
-                                    <Stack direction="row" spacing={2} className="mt-4">
-                                        <Skeleton variant="rectangular" width={60} height={20} />
-                                        <Skeleton variant="rectangular" width={60} height={20} />
-                                        <Skeleton variant="rectangular" width={80} height={20} />
-                                    </Stack>
+                                        {/* Dropdown Menu */}
+                                        <Menu
+                                            anchorEl={menuAnchor}
+                                            open={Boolean(menuAnchor)}
+                                            onClose={handleCloseMenu}
+                                        >
+                                            <MenuItem onClick={handleCloseMenu}>Edit</MenuItem>
+                                            <MenuItem onClick={handleCloseMenu}>Delete</MenuItem>
+                                        </Menu>
+                                    </div>
+
+                                    <Typography variant="body1">Public Key</Typography>
+                                    <Typography variant="body2" sx={{ color: 'text.secondary', wordBreak: 'break-word' }}>
+                                        {peer.public_key}
+                                    </Typography>
                                 </CardContent>
                             </CardActionArea>
                         </Card>
-                    ))}
-                </Stack>
-            ) : (
-                // Render actual data when not loading
-                data.length > 0 && data?.map((peer: any) => (
-                    <Card key={peer.id} sx={{ maxWidth: 400 }} className="mt-10 shadow-md">
-                        <CardActionArea onClick={() => navigate(`/peers/${peer.id}`)}>
-                            <CardContent>
-                                {/* Peer Status */}
-                                <div className='flex justify-between items-center'>
-                                    <Box sx={{ margin: 1, width: '100%' }}>
-                                        <Tooltip title="Status" arrow placement='top'>
-                                            <FiberManualRecordIcon fontSize="small" className="text-green-500" />
-                                        </Tooltip>
-                                    </Box>
-                                    <div className='flex gap-4'>
-                                        <div className='flex items-center'>
-                                            <NorthOutlinedIcon fontSize='small' />
-                                            <Typography variant="body1">{peer.upload || "0.00000"} GB</Typography>
-                                        </div>
-                                        <div className='flex items-center'>
-                                            <SouthOutlinedIcon fontSize='small' />
-                                            <Typography variant="body1">{peer.download || "0.00000"} GB</Typography>
-                                        </div>
-                                        <Typography variant="body1">{peer.last_seen || "N/A Ago"}</Typography>
-                                    </div>
-                                </div>
+                    ))
+                )}
+            </div>
 
-                                {/* Peer Details */}
-                                <Typography variant="h5">{peer.peer_name}</Typography>
-                                <Typography variant="body1">Public Key</Typography>
-                                <Typography variant="body2" sx={{ color: 'text.secondary', wordBreak: 'break-word' }}>
-                                    {peer.public_key}
-                                </Typography>
-                                <Typography variant="body1">Allowed IP</Typography>
-                                <Typography variant="body2" sx={{ color: 'text.secondary', wordBreak: 'break-word' }}>
-                                    {peer.assigned_ip}
-                                </Typography>
-                            </CardContent>
-                        </CardActionArea>
-                    </Card>
-                ))
-            )}
-
-            <AnimatedModal
-                ref={ref}
-                animation={ModalAnimation.Unfold}
-                closeOnBackgroundClick={true}
-                backgroundStyle={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-            >
-                <Box
-                    sx={{
-                        backgroundColor: "white",
-                        padding: "24px",
-                        borderRadius: "8px",
-                        width: "400px",
-                        boxShadow: 3,
-                        textAlign: "center",
-                    }}
+            {/* ✅ Modal Component */}
+            {isModalOpen && (
+                <AnimatedModal
+                    ref={ref}
+                    animation={ModalAnimation.Unfold}
+                    closeOnBackgroundClick={true}
+                    backgroundStyle={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
                 >
-                    <Typography variant="h6" fontWeight="bold">
-                        Add Device Details
-                    </Typography>
+                    <Box sx={{ backgroundColor: "white", padding: "24px", borderRadius: "8px", width: "400px", boxShadow: 3, textAlign: "center" }}>
+                        <Typography variant="h6" fontWeight="bold">
+                            Add Device Details
+                        </Typography>
 
-                    <Stack spacing={2} mt={2}>
-                        {/* Device Name Input */}
-                        <TextField
-                            label="Device Name"
-                            variant="outlined"
-                            fullWidth
-                            value={deviceName}
-                            onChange={(e) => setDeviceName(e.target.value)}
-                        />
+                        <Stack spacing={2} mt={2}>
+                            <TextField label="Device Name" variant="outlined" fullWidth value={deviceName} onChange={(e) => setDeviceName(e.target.value)} />
 
-                        {/* IP Address Input */}
-                        <TextField
-                            label="IP Address"
-                            variant="outlined"
-                            fullWidth
-                            value={ipAddress}
-                            onChange={(e) => setIpAddress(e.target.value)}
-                        />
 
-                        {/* Buttons */}
-                        <Stack direction="row" spacing={2} justifyContent="center">
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={handleSubmit}
-                            >
-                                Save
-                            </Button>
-                            <Button variant="outlined" color="error" onClick={handleCloseModal}>
-                                Cancel
-                            </Button>
+                            {/* ✅ Toggle for Auto IP Assignment */}
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={isAutoIP}
+                                        onChange={(e) => setIsAutoIP(e.target.checked)}
+                                        color="primary"
+                                    />
+                                }
+                                label="Auto Assign IP"
+                            />
+
+                            {/* ✅ IP Address Input - Disabled if Switch is ON */}
+                            <TextField
+                                label="IP Address"
+                                variant="outlined"
+                                fullWidth
+                                value={ipAddress}
+                                onChange={(e) => setIpAddress(e.target.value)}
+                                disabled={isAutoIP} // ✅ Disables input when switch is ON
+                            />
+
+                            <Stack direction="row" spacing={2} justifyContent="center">
+                                <Button variant="contained" color="primary" onClick={handleSubmit} disabled={isSubmitting}>
+                                    {isSubmitting ? <CircularProgress size={24} /> : "Save"}
+                                </Button>
+                                <Button variant="outlined" color="error" onClick={handleCloseModal} disabled={isSubmitting}>
+                                    Cancel
+                                </Button>
+                            </Stack>
                         </Stack>
-                    </Stack>
-                </Box>
-            </AnimatedModal>
+                    </Box>
+                </AnimatedModal>
+            )}
         </div>
     );
 };
