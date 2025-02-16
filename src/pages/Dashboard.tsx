@@ -20,7 +20,7 @@ const shimmerAnimation = {
 };
 
 const Dashboard = () => {
-    const [user, setUser] = useAtom(userAtom);
+
 
     const { isLoading, data } = useQuery({
         queryKey: ['user'],
@@ -44,12 +44,6 @@ const Dashboard = () => {
         },
 
     });
-
-    useEffect(() => {
-        if (data) {
-            setUser({ id: data.id, username: data.username });
-        }
-    }, [data]);
 
     return (
         <main>

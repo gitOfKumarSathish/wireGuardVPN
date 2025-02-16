@@ -12,6 +12,7 @@ import Peers from './pages/Peers';
 import Settings from './pages/Settings';
 import LoginForm from './auth/Login';
 import { Users } from './pages/Users';
+import AuthLayer from './auth/authLayer';
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
@@ -35,18 +36,20 @@ const AnimatedRoutes = () => {
         <Route path="/login" element={<AnimatedPage><LoginForm /></AnimatedPage>} />
 
         {/* Wrap NavigationDrawer only around necessary routes */}
-        <Route element={<NavigationDrawer />}>
-          <Route path="/dashboard" element={<AnimatedPage><Dashboard /></AnimatedPage>} />
-          <Route path="/peers" element={<AnimatedPage><Peers /></AnimatedPage>} />
-          <Route path="/peers/:id" element={<AnimatedPage><PeerDetails /></AnimatedPage>} />
-          <Route path="/users" element={<AnimatedPage><Users /></AnimatedPage>} />
-          <Route path="/settings" element={<AnimatedPage><Settings /></AnimatedPage>} />
-          <Route path="/help" element={<AnimatedPage><Help /></AnimatedPage>} />
+        <Route element={<AuthLayer />} >
+          <Route element={<NavigationDrawer />}>
+            <Route path="/dashboard" element={<AnimatedPage><Dashboard /></AnimatedPage>} />
+            <Route path="/peers" element={<AnimatedPage><Peers /></AnimatedPage>} />
+            <Route path="/peers/:id" element={<AnimatedPage><PeerDetails /></AnimatedPage>} />
+            <Route path="/users" element={<AnimatedPage><Users /></AnimatedPage>} />
+            <Route path="/settings" element={<AnimatedPage><Settings /></AnimatedPage>} />
+            <Route path="/help" element={<AnimatedPage><Help /></AnimatedPage>} />
+          </Route>
         </Route>
 
         <Route path="*" element={<AnimatedPage><NotFound /></AnimatedPage>} />
       </Routes>
-    </AnimatePresence>
+    </AnimatePresence >
   );
 };
 

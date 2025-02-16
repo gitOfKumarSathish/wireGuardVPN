@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';// Ensure this path is correct
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -31,12 +32,25 @@ const Peers = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
     const [selectedPeer, setSelectedPeer] = useState<any>(null);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    // console.log(isDeleteModalOpen);
 
     // ✅ Open Modal - Reset fields before opening
-    const configModal = () => {
-        setDeviceName("");
-        setIpAddress("");
-        setIsAutoIP(false);
+    const configModal = (peer: any) => {
+        console.log("peer found", peer);
+        if (peer) {
+            setDeviceName(peer.peer_name);
+            setIpAddress(peer.assigned_ip);
+            setIsAutoIP(peer.assigned_ip === "Auto Assigned");
+            setSelectedPeer(peer);
+            setIsEditMode(true);
+        } else {
+            setDeviceName("");
+            setIpAddress("");
+            setIsAutoIP(false);
+            setIsEditMode(false);
+        }
         setIsModalOpen(true);
         setTimeout(() => ref.current?.OpenModal(ModalAnimation.Unfold), 100);
     };
@@ -58,9 +72,13 @@ const Peers = () => {
     const { isLoading, data: peers = [] } = useQuery({
         queryKey: ["peers"],
         queryFn: async () => {
+            const authToken = getAuthToken();
+
             const response = await fetch(`${base_path}/api/peers`, {
                 method: "GET",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}`, },
+
+
             });
             if (!response.ok) {
                 const errorData = await response.json();
@@ -112,9 +130,17 @@ const Peers = () => {
             return;
         }
         setIsSubmitting(true);
+        if (isEditMode) {
+            console.log(isEditMode);
+            updatemutation.mutate({
+                peer_name: deviceName,
+                ip: isAutoIP ? "" : ipAddress,
+            });
+            return;
+        }
         mutation.mutate({
             peer_name: deviceName,
-            ipAddress: isAutoIP ? "Auto Assigned" : ipAddress,
+            ip: isAutoIP ? "" : ipAddress,
         });
     };
 
@@ -131,6 +157,77 @@ const Peers = () => {
         setSelectedPeer(null);
     };
 
+    // Mutation to update Peer
+    const updatemutation = useMutation({
+        mutationFn: async (formData: any) => {
+            const authToken = getAuthToken();
+            const response = await fetch(`${base_path}/api/peers/${selectedPeer.id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`,
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.detail || "Failed to add peer.");
+            }
+            return response.json();
+        },
+        onError: (error) => {
+            setIsSubmitting(false);
+            enqueueSnackbar(error.message, { variant: "error", autoHideDuration: 2000 });
+        },
+        onSuccess: async () => {
+            enqueueSnackbar("Peer Added Successfully!", { variant: "success", autoHideDuration: 2000 });
+
+            // ✅ Refresh peers before closing modal
+            await queryClient.invalidateQueries({ queryKey: ["peers"] });
+            setIsSubmitting(false);
+
+            // ✅ Close modal smoothly
+            handleCloseModal();
+        },
+    });
+
+    // Mutation to delete Peer
+    const deleteMutation = useMutation({
+        mutationFn: async (peerId) => {
+            const authToken = getAuthToken();
+            const response = await fetch(`${base_path}/api/peers/${peerId}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`,
+                },
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.detail || "Failed to delete peer.");
+            }
+            return response.json();
+        },
+        onError: (error) => {
+            enqueueSnackbar(error.message, { variant: "error", autoHideDuration: 2000 });
+        },
+        onSuccess: async () => {
+            enqueueSnackbar("Peer Deleted Successfully!", { variant: "success", autoHideDuration: 2000 });
+
+            // Refresh peers list
+            await queryClient.invalidateQueries({ queryKey: ["peers"] });
+        },
+    });
+
+    // Handle Delete Confirmation
+    const handleDeleteConfirm = () => {
+        deleteMutation.mutate(selectedPeer.id);
+        setIsDeleteModalOpen(false);
+        handleCloseMenu();
+    };
+
     return (
         <div className='w-full'>
             {/* Header */}
@@ -139,7 +236,7 @@ const Peers = () => {
 
                 {/* Buttons & Search */}
                 <Stack direction="row" spacing={2}>
-                    <Button onClick={configModal} variant="contained" startIcon={<AddOutlinedIcon fontSize='small' />}>
+                    <Button onClick={() => configModal("")} variant="contained" startIcon={<AddOutlinedIcon fontSize='small' />}>
                         Peer
                     </Button>
                     <Button variant="outlined" startIcon={<DownloadOutlinedIcon fontSize='medium' />}>
@@ -164,24 +261,37 @@ const Peers = () => {
                 ) : (
                     peers.length > 0 && peers.map((peer: any) => (
                         <Card key={peer.id} sx={{ maxWidth: 400 }} className="mt-10 shadow-md">
-                            <CardActionArea onClick={() => navigate(`/peers/${peer.id}`)}>
+                            {/* Ensure only clicking on CardContent navigates, not on the Kebab Menu */}
+                            <CardActionArea
+                                onClick={() => {
+                                    if (!menuAnchor) {
+                                        navigate(`/peers/${peer.id}`);
+                                    }
+                                }}
+                            >
                                 <CardContent>
                                     <div className="flex justify-between items-center">
                                         <Typography variant="h5">{peer.peer_name}</Typography>
 
                                         {/* Kebab Menu Button */}
-                                        <IconButton onClick={(event) => handleMenuClick(event, peer)} aria-label="settings">
+                                        <IconButton
+                                            onClick={(event) => {
+                                                event.stopPropagation(); // Prevents navigation
+                                                handleMenuClick(event, peer);
+                                            }}
+                                            aria-label="settings"
+                                        >
                                             <MoreVertIcon />
                                         </IconButton>
 
                                         {/* Dropdown Menu */}
                                         <Menu
                                             anchorEl={menuAnchor}
-                                            open={Boolean(menuAnchor)}
+                                            open={Boolean(menuAnchor && selectedPeer?.id === peer.id)}
                                             onClose={handleCloseMenu}
                                         >
-                                            <MenuItem onClick={handleCloseMenu}>Edit</MenuItem>
-                                            <MenuItem onClick={handleCloseMenu}>Delete</MenuItem>
+                                            <MenuItem onClick={() => { handleCloseMenu(); configModal(peer); }}>Edit</MenuItem>
+                                            <MenuItem onClick={() => { setIsDeleteModalOpen(true); }}>Delete</MenuItem>
                                         </Menu>
                                     </div>
 
@@ -189,9 +299,15 @@ const Peers = () => {
                                     <Typography variant="body2" sx={{ color: 'text.secondary', wordBreak: 'break-word' }}>
                                         {peer.public_key}
                                     </Typography>
+
+                                    <Typography variant="body1">IP Address</Typography>
+                                    <Typography variant="body2" sx={{ color: 'text.secondary', wordBreak: 'break-word' }}>
+                                        {peer.assigned_ip}
+                                    </Typography>
                                 </CardContent>
                             </CardActionArea>
                         </Card>
+
                     ))
                 )}
             </div>
@@ -246,6 +362,15 @@ const Peers = () => {
                         </Stack>
                     </Box>
                 </AnimatedModal>
+            )}
+
+            {/* ✅ Delete Confirmation Modal */}
+            {isDeleteModalOpen && (
+                <DeleteConfirmationModal
+                    handleOpen={isDeleteModalOpen}
+                    handleClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={handleDeleteConfirm}
+                />
             )}
         </div>
     );
