@@ -8,10 +8,12 @@ import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import { AnimatedModal, AnimatedModalObject, ModalAnimation } from '@dorbus/react-animated-modal';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import EnhancedTable from './UsersTable';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { base_path } from '../api/api';
 import { useSnackbar } from 'notistack';
 import { getAuthToken } from '../api/getAuthToken';
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
+
 
 export const Users = () => {
     const ref = useRef<AnimatedModalObject>(null);
@@ -22,6 +24,8 @@ export const Users = () => {
     const [isLoading, setIsLoading] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
     const queryClient = useQueryClient(); // ✅ React Query Client for refetching data
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
 
     // ✅ Open Modal and update state
     const configModal = () => {
@@ -77,8 +81,43 @@ export const Users = () => {
     // Handle Submit
     const handleSubmit = () => {
         setIsLoading(true);
-        mutation.mutate({ username: user, password: password, role: role });
+        mutation.mutate({ username: user, password: password, role_id: role });
     };
+
+    //handle delete()
+
+    const handleDeleteConfirm = async () => {
+        setIsDeleteModalOpen(false);
+        await queryClient.invalidateQueries({ queryKey: ['users'] });
+    };
+
+
+
+
+    // api for users roles
+    const { data: roleData } = useQuery({
+        queryKey: ['user'],
+        queryFn: async () => {
+            const authToken = getAuthToken();
+            if (!authToken) throw new Error("No auth token found");
+            const response = await fetch(`${base_path}/api/roles`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`,
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw errorData.detail;
+            }
+
+            return response.json();
+        },
+
+    });
+    console.log(roleData);
 
     return (
         <div className='w-full'>
@@ -169,9 +208,9 @@ export const Users = () => {
                                     onChange={(e) => setRole(e.target.value)}
                                     label="Role"
                                 >
-                                    <MenuItem value="admin">Admin</MenuItem>
-                                    <MenuItem value="user">User</MenuItem>
-                                    <MenuItem value="maintainer">Maintainer</MenuItem>
+                                    {roleData?.map((role: any) => (
+                                        <MenuItem key={role.id} value={role.id}>{role.role}</MenuItem>
+                                    ))}
                                 </Select>
                             </FormControl>
 
@@ -197,6 +236,16 @@ export const Users = () => {
                         </Stack>
                     </Box>
                 </AnimatedModal>
+            )}
+
+
+            {/* ✅ Delete Confirmation Modal */}
+            {isDeleteModalOpen && (
+                <DeleteConfirmationModal
+                    handleOpen={isDeleteModalOpen}
+                    handleClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={handleDeleteConfirm}
+                />
             )}
         </div>
     );
