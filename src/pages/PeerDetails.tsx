@@ -22,7 +22,7 @@ import { getAuthToken } from '../api/getAuthToken';
 import { enqueueSnackbar, useSnackbar } from 'notistack';
 import { useAtomValue } from 'jotai';
 import { userAtom } from '../jotai/userAtom';
-import { formatDataSize } from '../utils/Formater';
+import { formatDataSize, peerStatus } from '../utils/Formater';
 
 
 const PeerDetails = () => {
@@ -210,9 +210,10 @@ const PeerDetails = () => {
 
                     {/* Pulsing dot effect */}
                     <div className="relative flex items-center">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75"></span>
+                        <span className={`absolute inline-flex h-full w-full rounded-full ${peerStatus(peerData?.latest_handshake) ? "bg-green-500" : "bg-red-500"} opacity-75 animate-ping`}></span>
+
                         <Tooltip title="Status" arrow placement='top'>
-                            <FiberManualRecordIcon fontSize="small" className="text-red-500 relative" />
+                            <FiberManualRecordIcon fontSize="small" className={`${peerStatus(peerData?.latest_handshake) ? "text-green-500 " : "text-red-500"} relative`} />
                         </Tooltip>
                     </div>
                 </div>
