@@ -22,6 +22,7 @@ import { getAuthToken } from '../api/getAuthToken';
 import { enqueueSnackbar, useSnackbar } from 'notistack';
 import { useAtomValue } from 'jotai';
 import { userAtom } from '../jotai/userAtom';
+import { formatDataSize } from '../utils/Formater';
 
 
 const PeerDetails = () => {
@@ -178,6 +179,9 @@ const PeerDetails = () => {
         },
     });
 
+    if (isLoading) {
+        return <div>Loading....</div>;
+    }
 
 
 
@@ -185,7 +189,7 @@ const PeerDetails = () => {
         <div className="w-full h-screen">
             <div className='flex justify-between items-center p-4 bg-white rounded-lg shadow-md'>
                 <div>
-                    <h1 className='text-2xl font-medium'>{peerData.peer_name}</h1>
+                    <h1 className='text-2xl font-medium'>{peerData?.peer_name}</h1>
                 </div>
                 <div className='flex items-center gap-4'>
                     <Tooltip title="QR Code" arrow placement='top'>
@@ -233,7 +237,7 @@ const PeerDetails = () => {
                                         </Tooltip>
                                     </div>
                                     <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>
-                                        <span ref={ipAddressRef}>{peerData.assigned_ip}</span>
+                                        <span ref={ipAddressRef}>{peerData?.assigned_ip}</span>
                                     </Typography>
                                 </div>
                                 <Typography variant="h5" component="div">
@@ -248,9 +252,27 @@ const PeerDetails = () => {
                             <div className='card-content'>
                                 <div>
                                     <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
-                                        Total Usage
+                                        Total Received
                                     </Typography>
-                                    <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0.0000 GB
+                                    <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>
+                                        {formatDataSize(peerData?.rx)}
+                                    </Typography>
+                                </div>
+                                <Typography variant="h5" component="div">
+                                    <MultipleStopIcon className='rotates resizer' />
+                                </Typography>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Card sx={{ minWidth: '24%' }}>
+                        <CardContent>
+                            <div className='card-content'>
+                                <div>
+                                    <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
+                                        Total Send
+                                    </Typography>
+                                    <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>
+                                        {formatDataSize(peerData?.tx)}
                                     </Typography>
                                 </div>
                                 <Typography variant="h5" component="div">
@@ -260,39 +282,10 @@ const PeerDetails = () => {
                         </CardContent>
                     </Card>
 
-                    <Card sx={{ minWidth: '24%' }}>
-                        <CardContent>
-                            <div className='card-content'>
-                                <div>
-                                    <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
-                                        Total Received
-                                    </Typography>
-                                    <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0.0000 GB
-                                    </Typography>
-                                </div>
-                                <Typography variant="h5" component="div">
-                                    <FlightIcon className="resizer manualUp" />
-                                </Typography>
-                            </div>
-                        </CardContent>
-                    </Card>
 
-                    <Card sx={{ minWidth: '24%' }}>
-                        <CardContent>
-                            <div className='card-content'>
-                                <div>
-                                    <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
-                                        Total Sent
-                                    </Typography>
-                                    <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>0.0000 GB
-                                    </Typography>
-                                </div>
-                                <Typography variant="h5" component="div">
-                                    <FlightIcon className="resizer manualDown" />
-                                </Typography>
-                            </div>
-                        </CardContent>
-                    </Card>
+
+
+
                 </div>
                 <Divider className='divider' />
                 <div className="cards topMenu">

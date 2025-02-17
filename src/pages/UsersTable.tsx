@@ -307,12 +307,12 @@ const EnhancedTable = () => {
                                     </TableRow>
                                 ))
                             ) : (
-                                users.map((user) => (
-                                    <TableRow key={user.id} hover>
-                                        <TableCell>{user.username}</TableCell>
-                                        <TableCell>{user.role}</TableCell>
-                                        <TableCell>{user.peers}</TableCell>
-                                        <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                                users.map((user: any) => (
+                                    <TableRow key={user?.id} hover>
+                                        <TableCell>{user?.username}</TableCell>
+                                        <TableCell>{user?.role?.role}</TableCell>
+                                        <TableCell>{user?.peer_count}</TableCell>
+                                        <TableCell>{new Date(user?.created_at).toLocaleDateString()}</TableCell>
                                         <TableCell>
                                             <IconButton onClick={(event) => handleMenuOpen(event, user)}>
                                                 <MoreVertIcon />

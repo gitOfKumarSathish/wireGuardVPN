@@ -6,7 +6,8 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {
     Box, Button, InputAdornment, Skeleton, Stack, TextField, Card,
     CardActionArea, CardContent, Typography, FormControlLabel, Switch,
-    CircularProgress, IconButton, Menu, MenuItem
+    CircularProgress, IconButton, Menu, MenuItem,
+    Tooltip
 } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { base_path } from '../api/api';
@@ -16,6 +17,10 @@ import { useAtom } from 'jotai';
 import { userAtom } from '../jotai/userAtom';
 import { getAuthToken } from '../api/getAuthToken';
 import { useSnackbar } from 'notistack';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import { formatDataSize, formatTimeAgo, peerStatus } from '../utils/Formater';
+
 
 const Peers = () => {
     const [user] = useAtom(userAtom);
@@ -68,7 +73,7 @@ const Peers = () => {
         }, 300); // Small delay to ensure modal animation
     };
 
-    // Fetch Peers List
+    // Fetch Peers List with polling every 10 seconds
     const { isLoading, data: peers = [] } = useQuery({
         queryKey: ["peers"],
         queryFn: async () => {
@@ -76,9 +81,7 @@ const Peers = () => {
 
             const response = await fetch(`${base_path}/api/peers`, {
                 method: "GET",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}`, },
-
-
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
             });
             if (!response.ok) {
                 const errorData = await response.json();
@@ -86,6 +89,7 @@ const Peers = () => {
             }
             return response.json();
         },
+        refetchInterval: 10000, // Poll every 10 seconds
     });
 
     // Mutation to Add Peer
@@ -246,11 +250,11 @@ const Peers = () => {
             </div>
 
             {/* Peers List */}
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mt-4 gap-4'>
                 {isLoading ? (
                     <Stack spacing={2} className="mt-10">
                         {[1, 2, 3, 4].map((index) => (
-                            <Card key={index} sx={{ maxWidth: 400 }} className="shadow-md">
+                            <Card key={index} sx={{ maxWidth: 600 }} className="shadow-md">
                                 <CardContent>
                                     <Skeleton variant="text" width="80%" height={30} />
                                     <Skeleton variant="text" width="90%" height={20} />
@@ -260,7 +264,7 @@ const Peers = () => {
                     </Stack>
                 ) : (
                     peers.length > 0 && peers.map((peer: any) => (
-                        <Card key={peer.id} sx={{ maxWidth: 400 }} className="mt-10 shadow-md">
+                        <Card key={peer.id} sx={{ maxWidth: 500 }} className=" shadow-md cursor-pointer ">
                             {/* Ensure only clicking on CardContent navigates, not on the Kebab Menu */}
                             <CardActionArea
                                 onClick={() => {
@@ -269,9 +273,43 @@ const Peers = () => {
                                     }
                                 }}
                             >
-                                <CardContent>
-                                    <div className="flex justify-between items-center">
+                                <CardContent className=''>
+                                    <div className='flex items-center justify-between '>
+                                        <div>
+                                            <div className="relative flex items-center">
+                                                <span className={`absolute inline-flex h-full w-full rounded-full ${peerStatus(peer.latest_handshake) ? "bg-green-500" : "bg-red-500"} opacity-75 animate-ping`}></span>
+                                                <Tooltip title="Status" arrow placement='top'>
+                                                    <FiberManualRecordIcon fontSize="small" className={`${peerStatus(peer.latest_handshake) ? "text-green-500 " : "text-red-500"} relative`} />
+                                                </Tooltip>
+                                            </div>
+                                        </div>
+
+
+                                        <div className='flex items-center '>
+                                            <Tooltip title="RX value" arrow placement='top'>
+                                                <ArrowUpwardIcon fontSize="small" className="" />
+                                            </Tooltip>
+                                            <Typography className='text-xs'> {formatDataSize(peer?.rx)}</Typography>
+                                        </div>
+                                        <div className='flex items-center '>
+                                            <Tooltip title="RX value" arrow placement='top'>
+                                                <ArrowUpwardIcon fontSize="small" className="" />
+                                            </Tooltip>
+                                            <Typography className='text-xs'>{formatDataSize(peer?.tx)}</Typography>
+                                        </div>
+
+                                        <div className='flex items-center '>
+                                            <Tooltip title="Last Handshake" arrow placement='top'>
+                                                <ArrowUpwardIcon fontSize="small" className="" />
+                                            </Tooltip>
+                                            <Typography className='text-xs'>{formatTimeAgo(peer?.latest_handshake)}</Typography>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-between items-center mt-4">
                                         <Typography variant="h5">{peer.peer_name}</Typography>
+
+
 
                                         {/* Kebab Menu Button */}
                                         <IconButton
