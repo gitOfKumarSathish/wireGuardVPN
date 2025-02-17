@@ -153,6 +153,7 @@ const PeerDetails = () => {
             }
             return response.json();
         },
+        refetchInterval: 10000, // Poll every 10 seconds
     });
     console.log(peerData);
 
@@ -260,7 +261,7 @@ const PeerDetails = () => {
                                     </Typography>
                                 </div>
                                 <Typography variant="h5" component="div">
-                                    <MultipleStopIcon className='rotates resizer' />
+                                    <FlightIcon className='rotates resizer manualUp' />
                                 </Typography>
                             </div>
                         </CardContent>
@@ -277,11 +278,30 @@ const PeerDetails = () => {
                                     </Typography>
                                 </div>
                                 <Typography variant="h5" component="div">
+                                    <FlightIcon className='rotates resizer manualDown' />
+                                </Typography>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card sx={{ minWidth: '24%' }}>
+                        <CardContent>
+                            <div className='card-content'>
+                                <div>
+                                    <Typography sx={{ color: 'text.secondary', fontSize: 14 }} gutterBottom>
+                                        Total Usage
+                                    </Typography>
+                                    <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 24 }}>
+                                        {formatDataSize(peerData?.tx + peerData?.rx)}
+                                    </Typography>
+                                </div>
+                                <Typography variant="h5" component="div">
                                     <MultipleStopIcon className='rotates resizer' />
                                 </Typography>
                             </div>
                         </CardContent>
                     </Card>
+
 
 
 
