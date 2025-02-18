@@ -33,12 +33,13 @@ function AuthLayer() {
         },
 
     });
-
+    console.log(user);
     useEffect(() => {
-        if (data) {
-            setUser({ id: data.id, username: data.username });
+        if (data?.id && data?.username && data?.role?.role) {
+            setUser({ id: data.id, username: data.username, role: data.role.role });
         }
     }, [data]);
+
     if (isLoading) {
         return <div>
             <WifiLoader

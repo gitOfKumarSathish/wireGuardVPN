@@ -13,7 +13,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { base_path } from '../api/api';
 import { AnimatedModal, AnimatedModalObject, ModalAnimation } from '@dorbus/react-animated-modal';
 import { useRef, useState } from 'react';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { userAtom } from '../jotai/userAtom';
 import { getAuthToken } from '../api/getAuthToken';
 import { useSnackbar } from 'notistack';
@@ -23,7 +23,7 @@ import { formatDataSize, formatTimeAgo, peerStatus } from '../utils/Formater';
 
 
 const Peers = () => {
-    const [user] = useAtom(userAtom);
+    const user = useAtomValue(userAtom);
     const ref = useRef<AnimatedModalObject>(null);
     const navigate = useNavigate();
     const queryClient = useQueryClient();

@@ -13,11 +13,15 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import { useAtomValue } from 'jotai';
+import { userAtom } from '../jotai/userAtom';
 
 export default function NavigationDrawer() {
     const [open, setOpen] = React.useState(false);
     const location = useLocation();
     const [selectedIndex, setSelectedIndex] = React.useState(location.pathname);
+    const user = useAtomValue(userAtom);
+
 
     const toggleDrawer = (newOpen: boolean) => () => {
         setOpen(newOpen);
@@ -27,13 +31,15 @@ export default function NavigationDrawer() {
         setSelectedIndex(path);
     };
 
+
+
     const DrawerList = (
         <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 2 }}>
                 <img src="https://placehold.co/400x200/000000/FFFFFF/png" alt="Logo" style={{ maxWidth: '100%', height: 'auto' }} />
             </Box>
             <List>
-                {['Dashboard', 'Peers', 'Users', 'Settings', 'Help'].map((text, index) => {
+                {['Dashboard', 'Peers', 'Settings', 'Help'].map((text, index) => {
                     const path = `/${text.toLowerCase()}`;
                     return (
                         <ListItem key={text} disablePadding>
@@ -51,6 +57,21 @@ export default function NavigationDrawer() {
                         </ListItem>
                     );
                 })}
+                {user.role === 'admin' && (
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            component={Link}
+                            to="/users"
+                            selected={selectedIndex === '/users'}
+                            onClick={() => handleListItemClick('/users')}
+                        >
+                            <ListItemIcon>
+                                <InboxIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Users" />
+                        </ListItemButton>
+                    </ListItem>
+                )}
             </List>
             <Divider />
             <List>
