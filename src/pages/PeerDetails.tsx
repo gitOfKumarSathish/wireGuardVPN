@@ -23,6 +23,8 @@ import { enqueueSnackbar, useSnackbar } from 'notistack';
 import { useAtomValue } from 'jotai';
 import { userAtom } from '../jotai/userAtom';
 import { formatDataSize, peerStatus } from '../utils/Formater';
+import BoltLoader from '../utils/Loader';
+import Loader from '../utils/Loader';
 
 
 const PeerDetails = () => {
@@ -37,16 +39,12 @@ const PeerDetails = () => {
     const user = useAtomValue(userAtom);
 
 
-
-
-
     const deleteModal = (content: string) => {
         setModalContent(content);
         ref.current?.OpenModal(ModalAnimation.Unfold);
     };
 
     const QRModal = () => {
-
         mutation.mutate({},
             {
                 onSuccess: (data: any) => {
@@ -59,7 +57,6 @@ const PeerDetails = () => {
                     enqueueSnackbar(error as unknown as string, { variant: 'error' });
                 },
             }
-
         );
     };
 
@@ -98,8 +95,20 @@ const PeerDetails = () => {
 
 
     const configModal = (content: string) => {
-        setModalContent(content);
-        ref.current?.OpenModal(ModalAnimation.Unfold);
+        mutation.mutate({},
+            {
+                onSuccess: (data: any) => {
+                    queryClient.invalidateQueries({ queryKey: ['peers'] });
+                    enqueueSnackbar('Peer Configuration Generated Successfully', { variant: 'success' });
+                    setModalContent(() => configContent(data));
+                    ref.current?.OpenModal(ModalAnimation.Unfold);
+                },
+                onError: (error) => {
+                    enqueueSnackbar(error as unknown as string, { variant: 'error' });
+                },
+            }
+
+        );
     };
 
     const handleCloseModal = () => {
@@ -118,10 +127,7 @@ const PeerDetails = () => {
     };
 
 
-
-
     const QRContent = (peerData: any) => (<div className='flex flex-col items-center justify-center h-full'>
-        <h1>QR Code Content</h1>
         <QRCode
             size={256}
             style={{ height: "auto", maxWidth: "100%", width: "100%" }}
@@ -131,7 +137,26 @@ const PeerDetails = () => {
     </div>);
 
 
+    const configContent = (peerData: any) => {
+        const handleCopyConfig = () => {
+            navigator.clipboard.writeText(peerData);
+            enqueueSnackbar('Configuration copied to clipboard', { variant: 'success' });
+        };
 
+        return (
+            <div className='flex flex-col items-center justify-center h-full'>
+                <h1>Configuration Content</h1>
+                <div className='flex  flex-col items-center gap-4 p-4 bg-gray-100 rounded-lg'>
+                    <pre className='text-sm text-left'>{peerData.trim()}</pre>
+                    <Tooltip title="Copy Configuration" arrow>
+                        <IconButton onClick={handleCopyConfig} size="small">
+                            <ContentCopyOutlinedIcon fontSize="small" />
+                        </IconButton>
+                    </Tooltip>
+                </div>
+            </div>
+        );
+    };
 
 
     // api call for single peer
@@ -180,11 +205,11 @@ const PeerDetails = () => {
         },
     });
 
+
+
     if (isLoading) {
-        return <div>Loading....</div>;
+        return <div>Loading...</div>;
     }
-
-
 
     return (
         <div className="w-full h-screen">
@@ -203,7 +228,7 @@ const PeerDetails = () => {
                         <FileDownloadOutlinedIcon onClick={() => downloadModal()} />
                     </Tooltip>
                     <Tooltip title="Peer-Configuration" arrow placement='top'>
-                        <TuneIcon onClick={() => configModal('Peer-Configuration Content')} />
+                        <TuneIcon onClick={() => configModal("")} />
                     </Tooltip>
                     <Tooltip title="Delete" arrow placement='top'>
                         <DeleteOutlineIcon onClick={() => deleteModal('Delete Content')} />
@@ -212,7 +237,6 @@ const PeerDetails = () => {
                     {/* Pulsing dot effect */}
                     <div className="relative flex items-center">
                         <span className={`absolute inline-flex h-full w-full rounded-full ${peerStatus(peerData?.latest_handshake) ? "bg-green-500" : "bg-red-500"} opacity-75 animate-ping`}></span>
-
                         <Tooltip title="Status" arrow placement='top'>
                             <FiberManualRecordIcon fontSize="small" className={`${peerStatus(peerData?.latest_handshake) ? "text-green-500 " : "text-red-500"} relative`} />
                         </Tooltip>
@@ -303,10 +327,6 @@ const PeerDetails = () => {
                     </Card>
 
 
-
-
-
-
                 </div>
                 <Divider className='divider' />
                 <div className="cards topMenu">
@@ -371,7 +391,6 @@ const PeerDetails = () => {
             >
                 <div>
                     <h2>{modalContent}</h2>
-                    <button onClick={handleCloseModal}>Close</button>
                 </div>
             </AnimatedModal>
         </div>
