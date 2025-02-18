@@ -30,7 +30,7 @@ export default function NavigationDrawer() {
     const DrawerList = (
         <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 2 }}>
-                <img src="https://placehold.co/400x200/000000/FFFFFF/png" alt="Logo" style={{ maxWidth: '100%', height: 'auto' }} />
+                <img src="https://placehold.co/400x300/000000/FFFFFF/png" alt="Logo" style={{ maxWidth: '100%', height: 'auto' }} />
             </Box>
             <List>
                 {['Dashboard', 'Peers', 'Settings', 'Help'].map((text, index) => {
