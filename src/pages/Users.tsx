@@ -2,7 +2,7 @@ import {
     Box, Button, InputAdornment, Stack, TextField, Typography, MenuItem,
     Select, FormControl, InputLabel, CircularProgress
 } from '@mui/material';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import { AnimatedModal, AnimatedModalObject, ModalAnimation } from '@dorbus/react-animated-modal';
@@ -25,6 +25,7 @@ export const Users = () => {
     const { enqueueSnackbar } = useSnackbar();
     const queryClient = useQueryClient(); // ✅ React Query Client for refetching data
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
 
     // ✅ Open Modal and update state
@@ -35,6 +36,13 @@ export const Users = () => {
         setIsModalOpen(true);
         ref.current?.OpenModal(ModalAnimation.Unfold);
     };
+
+    // Use useEffect to open the modal after state update
+    useEffect(() => {
+        if (isModalOpen) {
+            ref.current?.OpenModal(ModalAnimation.Unfold);
+        }
+    }, [isModalOpen]);
 
     // ✅ Close Modal properly
     const handleCloseModal = () => {
@@ -143,6 +151,8 @@ export const Users = () => {
                         placeholder="Search Users..."
                         size="small"
                         sx={{ width: 300 }}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
@@ -155,7 +165,7 @@ export const Users = () => {
             </div>
 
             <div className='mt-4'>
-                <EnhancedTable />
+                <EnhancedTable searchQuery={searchQuery} />
             </div>
 
             {/* ✅ Show Modal only if it's open */}

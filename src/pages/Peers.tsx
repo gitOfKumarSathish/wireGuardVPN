@@ -20,6 +20,8 @@ import { useSnackbar } from 'notistack';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { formatDataSize, formatTimeAgo, peerStatus } from '../utils/Formater';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 
 const Peers = () => {
@@ -274,7 +276,7 @@ const Peers = () => {
                                 }}
                             >
                                 <CardContent className=''>
-                                    <div className='flex items-center justify-between '>
+                                    <div className='flex items-center justify-between'>
                                         <div>
                                             <div className="relative flex items-center">
                                                 <span className={`absolute inline-flex h-full w-full rounded-full ${peerStatus(peer.latest_handshake) ? "bg-green-500" : "bg-red-500"} opacity-75 animate-ping`}></span>
@@ -285,32 +287,29 @@ const Peers = () => {
                                         </div>
 
 
-                                        <div className='flex items-center '>
+                                        <div className='flex items-center'>
                                             <Tooltip title="RX value" arrow placement='top'>
-                                                <ArrowUpwardIcon fontSize="small" className="" />
+                                                <ArrowUpwardIcon fontSize="small" className="text-blue-500" />
                                             </Tooltip>
                                             <Typography className='text-xs'> {formatDataSize(peer?.rx)}</Typography>
                                         </div>
                                         <div className='flex items-center '>
                                             <Tooltip title="RX value" arrow placement='top'>
-                                                <ArrowUpwardIcon fontSize="small" className="" />
+                                                <ArrowDownwardIcon fontSize="small" className="text-blue-500" />
                                             </Tooltip>
                                             <Typography className='text-xs'>{formatDataSize(peer?.tx)}</Typography>
                                         </div>
 
                                         <div className='flex items-center '>
                                             <Tooltip title="Last Handshake" arrow placement='top'>
-                                                <ArrowUpwardIcon fontSize="small" className="" />
+                                                <AccessTimeIcon fontSize="small" className="text-blue-500" />
                                             </Tooltip>
                                             <Typography className='text-xs'>{formatTimeAgo(peer?.latest_handshake)}</Typography>
                                         </div>
                                     </div>
 
-                                    <div className="flex justify-between items-center mt-4">
-                                        <Typography variant="h5">{peer.peer_name}</Typography>
-
-
-
+                                    <div className="flex justify-between items-center mt-4 ">
+                                        <Typography variant='h5' className='capitalize'>{peer?.peer_name}</Typography>
                                         {/* Kebab Menu Button */}
                                         <IconButton
                                             onClick={(event) => {
@@ -319,7 +318,10 @@ const Peers = () => {
                                             }}
                                             aria-label="settings"
                                         >
-                                            <MoreVertIcon />
+                                            <MoreVertIcon
+                                                className="text-blue-500"
+
+                                            />
                                         </IconButton>
 
                                         {/* Dropdown Menu */}
@@ -333,10 +335,11 @@ const Peers = () => {
                                         </Menu>
                                     </div>
 
-                                    <Typography variant="body1">Public Key</Typography>
+                                    <Typography variant="body1">PublicKey</Typography>
                                     <Typography variant="body2" sx={{ color: 'text.secondary', wordBreak: 'break-word' }}>
                                         {peer.public_key}
                                     </Typography>
+
 
                                     <Typography variant="body1">IP Address</Typography>
                                     <Typography variant="body2" sx={{ color: 'text.secondary', wordBreak: 'break-word' }}>

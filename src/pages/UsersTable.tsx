@@ -94,7 +94,7 @@ const EnhancedTableHead: React.FC<{ order: Order, orderBy: keyof User, onRequest
     );
 };
 
-const EnhancedTable = () => {
+const EnhancedTable = ({ searchQuery }: { searchQuery: string; }) => {
     const ref = React.useRef<AnimatedModalObject>(null);
 
     const [order, setOrder] = React.useState<Order>('asc');
@@ -201,7 +201,12 @@ const EnhancedTable = () => {
     });
     console.log(selectedUser);
 
-
+    // Filter users based on the search query
+    const filteredUsers = users.filter((user) => {
+        const usernameMatch = user.username.toLowerCase().includes(searchQuery.toLowerCase());
+        const roleMatch = user.role && typeof user.role === 'string' && user.role.toLowerCase().includes(searchQuery.toLowerCase());
+        return usernameMatch || roleMatch;
+    });
 
     // Sorting handler
     const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof User) => {
@@ -307,7 +312,7 @@ const EnhancedTable = () => {
                                     </TableRow>
                                 ))
                             ) : (
-                                users.map((user: any) => (
+                                filteredUsers.map((user: any) => (
                                     <TableRow key={user?.id} hover>
                                         <TableCell>{user?.username}</TableCell>
                                         <TableCell>{user?.role?.role}</TableCell>
@@ -338,6 +343,10 @@ const EnhancedTable = () => {
                 <MenuItem onClick={() => { handleMenuClose(); setIsDeleteModalOpen(true); }}>
                     <DeleteIcon sx={{ mr: 1 }} color="error" /> Delete
                 </MenuItem>
+                <MenuItem onClick={() => { handleMenuClose(); setIsDeleteModalOpen(true); }}>
+                    <DeleteIcon sx={{ mr: 1 }} color="error" /> View
+                </MenuItem>
+
             </Menu>
 
 
