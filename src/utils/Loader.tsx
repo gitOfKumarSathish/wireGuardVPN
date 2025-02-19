@@ -1,30 +1,15 @@
-// WifiLoader.tsx
-import React from "react";
+import React from 'react';
 
-interface WifiLoaderProps {
-    background: string;
-    desktopSize: string;
-    mobileSize: string;
-    text: string;
-    backColor: string;
-    frontColor: string;
-}
-
-const WifiLoader: React.FC<WifiLoaderProps> = ({
-    background,
-    desktopSize,
-    mobileSize,
-    text,
-    backColor,
-    frontColor,
-}) => {
+const WifiLoader: React.FC = () => {
     return (
-        <div className="wifi-loader-container" style={{ background: background }}>
-            <div className="wifi-loader" style={{ width: desktopSize, height: desktopSize }}>
-                <div className="wifi-circle" style={{ background: backColor }}></div>
-                <div className="wifi-circle" style={{ background: frontColor }}></div>
+        <div className="wifi-loader-container">
+            <div className="wifi-loader">
+                <div className="circle"></div>
+                <div className="circle"></div>
+                <div className="circle"></div>
+                <div className="circle"></div>
             </div>
-            <div className="wifi-loader-text">{text}</div>
+            <div className="loading-text">Loading...</div> {/* Added loading text */}
         </div>
     );
 };

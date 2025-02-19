@@ -7,6 +7,8 @@ import { base_path } from '../api/api';
 import { useQuery } from '@tanstack/react-query';
 
 import WifiLoader from '../utils/Loader';
+import DotLoader from '../utils/Loader';
+import RingLoader from '../utils/Loader';
 
 function AuthLayer() {
     const [user, setUser] = useAtom(userAtom);
@@ -42,14 +44,7 @@ function AuthLayer() {
 
     if (isLoading) {
         return <div>
-            <WifiLoader
-                background={"transparent"}
-                desktopSize={"150px"}
-                mobileSize={"150px"}
-                text={"Wifi Loader"}
-                backColor="#E8F2FC"
-                frontColor="#4645F6"
-            />
+            <WifiLoader />
         </div>;
     }
     return (
