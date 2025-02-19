@@ -214,7 +214,7 @@ body {
     border-radius: 50%;
     width: 100%;
     height: 100%;
-    animation: rotate-and-pause 3s linear infinite;
+    animation: rotate-and-pause 1s linear infinite;
     /* Animation with pause */
 }
 
