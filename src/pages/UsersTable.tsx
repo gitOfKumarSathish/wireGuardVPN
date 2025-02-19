@@ -22,6 +22,7 @@ import { getAuthToken } from '../api/getAuthToken';
 import { enqueueSnackbar } from 'notistack';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import { AnimatedModal, AnimatedModalObject, ModalAnimation } from '@dorbus/react-animated-modal';
+import ViewAgendaIcon from '@mui/icons-material/ViewAgenda';
 
 
 // Define user structure based on API response
@@ -344,7 +345,7 @@ const EnhancedTable = ({ searchQuery }: { searchQuery: string; }) => {
                     <DeleteIcon sx={{ mr: 1 }} color="error" /> Delete
                 </MenuItem>
                 <MenuItem onClick={() => { handleMenuClose(); setIsDeleteModalOpen(true); }}>
-                    <DeleteIcon sx={{ mr: 1 }} color="error" /> View
+                    <ViewAgendaIcon sx={{ mr: 1 }} /> View
                 </MenuItem>
 
             </Menu>
