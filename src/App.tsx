@@ -13,6 +13,7 @@ import Settings from './pages/Settings';
 import LoginForm from './auth/Login';
 import { Users } from './pages/Users';
 import AuthLayer from './auth/authLayer';
+import LogOut from './pages/LogOut';
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
@@ -44,6 +45,7 @@ const AnimatedRoutes = () => {
             <Route path="/users" element={<AnimatedPage><Users /></AnimatedPage>} />
             <Route path="/settings" element={<AnimatedPage><Settings /></AnimatedPage>} />
             <Route path="/help" element={<AnimatedPage><Help /></AnimatedPage>} />
+            <Route path="/logout" element={<AnimatedPage><LogOut /></AnimatedPage>} />
           </Route>
         </Route>
 

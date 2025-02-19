@@ -77,7 +77,12 @@ export default function NavigationDrawer() {
             <List>
                 {['Logout'].map((text, index) => (
                     <ListItem key={text} disablePadding>
-                        <ListItemButton>
+                        <ListItemButton
+                            component={Link}
+                            to="/logout"
+                            selected={selectedIndex === '/logout'}
+                            onClick={() => handleListItemClick('/logout')}
+                        >
                             <ListItemIcon>
                                 {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
                             </ListItemIcon>
