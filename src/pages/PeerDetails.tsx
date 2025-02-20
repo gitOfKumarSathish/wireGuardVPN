@@ -387,7 +387,8 @@ const PeerDetails = () => {
             </section>
             <AnimatedModal ref={ref} animation={ModalAnimation.Unfold}
                 closeOnBackgroundClick={true}
-                backgroundStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+                backgroundStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 10000 }}
+                modalStyle={{ zIndex: 10001 }}
             >
                 <div>
                     <h2>{modalContent}</h2>
