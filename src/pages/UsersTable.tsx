@@ -23,6 +23,7 @@ import { enqueueSnackbar } from 'notistack';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import { AnimatedModal, AnimatedModalObject, ModalAnimation } from '@dorbus/react-animated-modal';
 import ViewAgendaIcon from '@mui/icons-material/ViewAgenda';
+import { useNavigate } from 'react-router-dom';
 
 
 // Define user structure based on API response
@@ -97,6 +98,7 @@ const EnhancedTableHead: React.FC<{ order: Order, orderBy: keyof User, onRequest
 
 const EnhancedTable = ({ searchQuery }: { searchQuery: string; }) => {
     const ref = React.useRef<AnimatedModalObject>(null);
+    const navigate = useNavigate();
 
     const [order, setOrder] = React.useState<Order>('asc');
     const [orderBy, setOrderBy] = React.useState<keyof User>('username');
@@ -344,7 +346,7 @@ const EnhancedTable = ({ searchQuery }: { searchQuery: string; }) => {
                 <MenuItem onClick={() => { handleMenuClose(); setIsDeleteModalOpen(true); }}>
                     <DeleteIcon sx={{ mr: 1 }} color="error" /> Delete
                 </MenuItem>
-                <MenuItem onClick={() => { handleMenuClose(); setIsDeleteModalOpen(true); }}>
+                <MenuItem onClick={() => { handleMenuClose(); navigate(`/users/${selectedUser.username}/${selectedUser.id}`); }}>
                     <ViewAgendaIcon sx={{ mr: 1 }} /> View
                 </MenuItem>
 

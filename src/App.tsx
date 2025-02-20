@@ -14,6 +14,7 @@ import LoginForm from './auth/Login';
 import { Users } from './pages/Users';
 import AuthLayer from './auth/authLayer';
 import LogOut from './pages/LogOut';
+import UserPeerView from './pages/UserPeerView';
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
@@ -43,6 +44,7 @@ const AnimatedRoutes = () => {
             <Route path="/peers" element={<AnimatedPage><Peers /></AnimatedPage>} />
             <Route path="/peers/:id" element={<AnimatedPage><PeerDetails /></AnimatedPage>} />
             <Route path="/users" element={<AnimatedPage><Users /></AnimatedPage>} />
+            <Route path="/users/:username/:id" element={<AnimatedPage><UserPeerView /></AnimatedPage>} />
             <Route path="/settings" element={<AnimatedPage><Settings /></AnimatedPage>} />
             <Route path="/help" element={<AnimatedPage><Help /></AnimatedPage>} />
             <Route path="/logout" element={<AnimatedPage><LogOut /></AnimatedPage>} />

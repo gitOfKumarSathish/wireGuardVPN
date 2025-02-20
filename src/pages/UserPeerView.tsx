@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';// Ensure this path is correct
+import { useNavigate, useParams } from 'react-router-dom';// Ensure this path is correct
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
@@ -24,12 +24,13 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 
-const Peers = () => {
+const UserPeerView = () => {
     const user = useAtomValue(userAtom);
     const ref = useRef<AnimatedModalObject>(null);
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { enqueueSnackbar } = useSnackbar();
+    const { id, username } = useParams();
 
     // State variables
     const [deviceName, setDeviceName] = useState("");
@@ -81,7 +82,7 @@ const Peers = () => {
         queryFn: async () => {
             const authToken = getAuthToken();
 
-            const response = await fetch(`${base_path}/api/peers`, {
+            const response = await fetch(`${base_path}/api/peers/users/${id}`, {
                 method: "GET",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
             });
@@ -98,7 +99,7 @@ const Peers = () => {
     const mutation = useMutation({
         mutationFn: async (formData: any) => {
             const authToken = getAuthToken();
-            const response = await fetch(`${base_path}/api/peers/${user.id}`, {
+            const response = await fetch(`${base_path}/api/peers/${id}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -238,7 +239,7 @@ const Peers = () => {
         <div className='w-full'>
             {/* Header */}
             <div className='flex justify-between items-center p-4 bg-white rounded-lg shadow-md'>
-                <h1 className='text-2xl font-medium'>Peers</h1>
+                <h1 className='text-2xl font-medium capitalize'>{username}-Peers</h1>
 
                 {/* Buttons & Search */}
                 <Stack direction="row" spacing={2}>
@@ -417,4 +418,4 @@ const Peers = () => {
     );
 };
 
-export default Peers;
+export default UserPeerView;
