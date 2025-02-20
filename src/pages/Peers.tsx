@@ -236,11 +236,34 @@ const Peers = () => {
 
     return (
         <div className='w-full'>
+            {/* Define the perimeter-flowing animation */}
+            <style>{`
+    @keyframes perimeterFlow {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    .animate-perimeter-flow::before {
+      content: '';
+      position: absolute;
+      inset: -6px; /* Increased from -2px to -4px for 4px padding */
+      border-radius: 8px;
+      background: conic-gradient(from 0deg, transparent, var(--border-color), transparent);
+      animation: perimeterFlow 4s linear infinite; /* Already infinite */
+      pointer-events: none;
+      z-index: 0;
+    }
+    .animate-perimeter-flow {
+      position: relative;
+    }
+  `}</style>
+
             {/* Header */}
             <div className='flex justify-between items-center p-4 bg-white rounded-lg shadow-md'>
                 <h1 className='text-2xl font-medium'>Peers</h1>
-
-                {/* Buttons & Search */}
                 <Stack direction="row" spacing={2}>
                     <Button onClick={() => configModal("")} variant="contained" startIcon={<AddOutlinedIcon fontSize='small' />}>
                         Peer
@@ -266,94 +289,98 @@ const Peers = () => {
                     </Stack>
                 ) : (
                     peers.length > 0 && peers.map((peer: any) => (
-                        <Card key={peer.id} sx={{ maxWidth: 500 }} className=" shadow-md cursor-pointer ">
-                            {/* Ensure only clicking on CardContent navigates, not on the Kebab Menu */}
-                            <CardActionArea
-                                onClick={() => {
-                                    if (!menuAnchor) {
-                                        navigate(`/peers/${peer.id}`);
-                                    }
-                                }}
-                            >
-                                <CardContent className=''>
-                                    <div className='flex items-center justify-between'>
-                                        <div>
-                                            <div className="relative flex items-center">
-                                                <span className={`absolute inline-flex h-full w-full rounded-full ${peerStatus(peer.latest_handshake) ? "bg-green-500" : "bg-red-500"} opacity-75 animate-ping`}></span>
-                                                <Tooltip title="Status" arrow placement='top'>
-                                                    <FiberManualRecordIcon fontSize="small" className={`${peerStatus(peer.latest_handshake) ? "text-green-500 " : "text-red-500"} relative`} />
+                        <Card
+                            key={peer.id}
+                            sx={{
+                                maxWidth: 500,
+                                '--border-color': peerStatus(peer.latest_handshake) ? '#22c55e' : '#ef4444' // green-500 or red-500
+                            }}
+                            className="shadow-md cursor-pointer relative overflow-hidden animate-perimeter-flow"
+                        >
+                            {/* Inner content background - Adjusted for 4px padding */}
+                            <div className="absolute inset-[4px] bg-white rounded-[calc(0.5rem-4px)] z-10" />
+
+                            {/* Card content */}
+                            <div className="relative z-20">
+                                <CardActionArea
+                                    onClick={() => {
+                                        if (!menuAnchor) {
+                                            navigate(`/peers/${peer.id}`);
+                                        }
+                                    }}
+                                >
+                                    <CardContent className=''>
+                                        <div className='flex items-center justify-between border-b-2 border-gray-300'>
+                                            <div>
+                                                <div className="relative flex items-center">
+                                                    <span className={`absolute inline-flex h-full w-full rounded-full ${peerStatus(peer.latest_handshake) ? "bg-green-500" : "bg-red-500"} opacity-75 animate-ping`}></span>
+                                                    <Tooltip title="Status" arrow placement='top'>
+                                                        <FiberManualRecordIcon fontSize="small" className={`${peerStatus(peer.latest_handshake) ? "text-green-500 " : "text-red-500"} relative`} />
+                                                    </Tooltip>
+                                                </div>
+                                            </div>
+
+                                            <div className='flex items-center'>
+                                                <Tooltip title="RX value" arrow placement='top'>
+                                                    <ArrowUpwardIcon fontSize="small" className="text-blue-500" />
                                                 </Tooltip>
+                                                <Typography className='text-xs'> {formatDataSize(peer?.rx)}</Typography>
+                                            </div>
+                                            <div className='flex items-center'>
+                                                <Tooltip title="TX value" arrow placement='top'>
+                                                    <ArrowDownwardIcon fontSize="small" className="text-blue-500" />
+                                                </Tooltip>
+                                                <Typography className='text-xs'>{formatDataSize(peer?.tx)}</Typography>
+                                            </div>
+
+                                            <div className='flex items-center'>
+                                                <Tooltip title="Last Handshake" arrow placement='top'>
+                                                    <AccessTimeIcon fontSize="small" className="text-blue-500" />
+                                                </Tooltip>
+                                                <Typography className='text-xs'>{formatTimeAgo(peer?.latest_handshake)}</Typography>
                                             </div>
                                         </div>
 
+                                        <div className="flex justify-between items-center mt-4">
+                                            <Typography variant='h5' className='capitalize'>{peer?.peer_name}</Typography>
+                                            <IconButton
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    handleMenuClick(event, peer);
+                                                }}
+                                                aria-label="settings"
+                                            >
+                                                <MoreVertIcon className="text-blue-500" />
+                                            </IconButton>
 
-                                        <div className='flex items-center'>
-                                            <Tooltip title="RX value" arrow placement='top'>
-                                                <ArrowUpwardIcon fontSize="small" className="text-blue-500" />
-                                            </Tooltip>
-                                            <Typography className='text-xs'> {formatDataSize(peer?.rx)}</Typography>
+                                            <Menu
+                                                anchorEl={menuAnchor}
+                                                open={Boolean(menuAnchor && selectedPeer?.id === peer.id)}
+                                                onClose={handleCloseMenu}
+                                            >
+                                                <MenuItem onClick={() => { handleCloseMenu(); configModal(peer); }}>Edit</MenuItem>
+                                                <MenuItem onClick={() => { setIsDeleteModalOpen(true); }}>Delete</MenuItem>
+                                            </Menu>
                                         </div>
-                                        <div className='flex items-center '>
-                                            <Tooltip title="TX value" arrow placement='top'>
-                                                <ArrowDownwardIcon fontSize="small" className="text-blue-500" />
-                                            </Tooltip>
-                                            <Typography className='text-xs'>{formatDataSize(peer?.tx)}</Typography>
-                                        </div>
 
-                                        <div className='flex items-center '>
-                                            <Tooltip title="Last Handshake" arrow placement='top'>
-                                                <AccessTimeIcon fontSize="small" className="text-blue-500" />
-                                            </Tooltip>
-                                            <Typography className='text-xs'>{formatTimeAgo(peer?.latest_handshake)}</Typography>
-                                        </div>
-                                    </div>
+                                        <Typography variant="body1">PublicKey</Typography>
+                                        <Typography variant="body2" sx={{ color: 'text.secondary', wordBreak: 'break-word' }}>
+                                            {peer.public_key}
+                                        </Typography>
 
-                                    <div className="flex justify-between items-center mt-4 ">
-                                        <Typography variant='h5' className='capitalize'>{peer?.peer_name}</Typography>
-                                        {/* Kebab Menu Button */}
-                                        <IconButton
-                                            onClick={(event) => {
-                                                event.stopPropagation(); // Prevents navigation
-                                                handleMenuClick(event, peer);
-                                            }}
-                                            aria-label="settings"
-                                        >
-                                            <MoreVertIcon
-                                                className="text-blue-500"
-
-                                            />
-                                        </IconButton>
-
-                                        {/* Dropdown Menu */}
-                                        <Menu
-                                            anchorEl={menuAnchor}
-                                            open={Boolean(menuAnchor && selectedPeer?.id === peer.id)}
-                                            onClose={handleCloseMenu}
-                                        >
-                                            <MenuItem onClick={() => { handleCloseMenu(); configModal(peer); }}>Edit</MenuItem>
-                                            <MenuItem onClick={() => { setIsDeleteModalOpen(true); }}>Delete</MenuItem>
-                                        </Menu>
-                                    </div>
-
-                                    <Typography variant="body1">PublicKey</Typography>
-                                    <Typography variant="body2" sx={{ color: 'text.secondary', wordBreak: 'break-word' }}>
-                                        {peer.public_key}
-                                    </Typography>
-
-
-                                    <Typography variant="body1">IP Address</Typography>
-                                    <Typography variant="body2" sx={{ color: 'text.secondary', wordBreak: 'break-word' }}>
-                                        {peer.assigned_ip}
-                                    </Typography>
-                                </CardContent>
-                            </CardActionArea>
+                                        <Typography variant="body1">IP Address</Typography>
+                                        <Typography variant="body2" sx={{ color: 'text.secondary', wordBreak: 'break-word' }}>
+                                            {peer.assigned_ip}
+                                        </Typography>
+                                    </CardContent>
+                                </CardActionArea>
+                            </div>
                         </Card>
-
                     ))
                 )}
             </div>
 
-            {/* ✅ Modal Component */}
+            {/* Modal Component */}
             {isModalOpen && (
                 <AnimatedModal
                     ref={ref}
@@ -365,12 +392,8 @@ const Peers = () => {
                         <Typography variant="h6" fontWeight="bold">
                             Add Device Details
                         </Typography>
-
                         <Stack spacing={2} mt={2}>
                             <TextField label="Device Name" variant="outlined" fullWidth value={deviceName} onChange={(e) => setDeviceName(e.target.value)} />
-
-
-                            {/* ✅ Toggle for Auto IP Assignment */}
                             <FormControlLabel
                                 control={
                                     <Switch
@@ -381,17 +404,14 @@ const Peers = () => {
                                 }
                                 label="Auto Assign IP"
                             />
-
-                            {/* ✅ IP Address Input - Disabled if Switch is ON */}
                             <TextField
                                 label="IP Address"
                                 variant="outlined"
                                 fullWidth
                                 value={ipAddress}
                                 onChange={(e) => setIpAddress(e.target.value)}
-                                disabled={isAutoIP} // ✅ Disables input when switch is ON
+                                disabled={isAutoIP}
                             />
-
                             <Stack direction="row" spacing={2} justifyContent="center">
                                 <Button variant="contained" color="primary" onClick={handleSubmit} disabled={isSubmitting}>
                                     {isSubmitting ? <CircularProgress size={24} /> : "Save"}
@@ -405,7 +425,7 @@ const Peers = () => {
                 </AnimatedModal>
             )}
 
-            {/* ✅ Delete Confirmation Modal */}
+            {/* Delete Confirmation Modal */}
             {isDeleteModalOpen && (
                 <DeleteConfirmationModal
                     handleOpen={isDeleteModalOpen}
