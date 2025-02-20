@@ -7,7 +7,8 @@ export const formatDataSize = (bytes: number) => {
 };
 
 
-export const formatTimeAgo = (timestamp: number) => {
+export const formatTimeAgo = (timestamp: any) => {
+    if (timestamp == "Never" || !timestamp) return 'Never';
     const now = Date.now();
     const secondsPast = (now - timestamp * 1000) / 1000; // Convert timestamp to milliseconds
 
